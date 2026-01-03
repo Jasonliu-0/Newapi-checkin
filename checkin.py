@@ -95,15 +95,29 @@ class NewAPICheckin:
 
             if verbose:
                 print(f'  [调试] HTTP 状态码: {resp.status_code}')
-                print(f'  [调试] 响应内容: {resp.text[:200]}...')
+                print(f'  [调试] 响应内容预览: {resp.text[:200]}...')
+
+            # 检查认证失败
+            if resp.status_code == 401:
+                print(f'[错误] 认证失败 (401): Session 可能已过期')
+                if verbose:
+                    print(f'  [调试] 完整响应: {resp.text[:500]}')
+                return None
+
+            # 尝试解析 JSON
+            try:
+                data = resp.json()
+            except json.JSONDecodeError as e:
+                print(f'[错误] 响应格式错误 (HTTP {resp.status_code}): 无法解析 JSON')
+                if verbose:
+                    print(f'  [调试] 原始响应: {resp.text[:500]}')
+                return None
+
+            if verbose:
+                print(f'  [调试] success 字段: {data.get("success")}')
+                print(f'  [调试] message 字段: {data.get("message")}')
 
             if resp.status_code == 200:
-                data = resp.json()
-
-                if verbose:
-                    print(f'  [调试] success 字段: {data.get("success")}')
-                    print(f'  [调试] message 字段: {data.get("message")}')
-
                 if data.get('success'):
                     user_data = data.get('data')
                     # 保存用户ID并设置到请求头
@@ -117,19 +131,21 @@ class NewAPICheckin:
                     if verbose:
                         print(f'  [调试] API 返回失败: {data.get("message", "未知错误")}')
             else:
-                if verbose:
-                    print(f'  [调试] HTTP 错误: {resp.status_code}')
+                print(f'[错误] HTTP {resp.status_code}: {data.get("message", "未知错误")}')
+
+            return None
+
+        except requests.exceptions.Timeout:
+            print(f'[错误] 请求超时')
             return None
         except requests.exceptions.RequestException as e:
             print(f'[错误] 网络请求失败: {e}')
             return None
-        except json.JSONDecodeError as e:
-            print(f'[错误] 响应解析失败: {e}')
-            if verbose:
-                print(f'  [调试] 原始响应: {resp.text[:500]}')
-            return None
         except Exception as e:
-            print(f'[错误] 获取用户信息失败: {e}')
+            print(f'[错误] 未知错误: {e}')
+            if verbose:
+                import traceback
+                traceback.print_exc()
             return None
 
     def checkin(self) -> dict:
@@ -152,7 +168,20 @@ class NewAPICheckin:
 
         try:
             resp = self.session.post(f'{self.base_url}/api/user/checkin', timeout=30)
-            data = resp.json()
+
+            # 先检查状态码
+            if resp.status_code == 401:
+                result['message'] = '认证失败: Session 可能已过期，请重新获取'
+                return result
+
+            # 尝试解析 JSON
+            try:
+                data = resp.json()
+            except json.JSONDecodeError:
+                # JSON 解析失败，显示原始响应内容
+                content_preview = resp.text[:200] if resp.text else '(空响应)'
+                result['message'] = f'响应格式错误 (HTTP {resp.status_code}): {content_preview}'
+                return result
 
             if resp.status_code == 200:
                 # 根据 API 响应的 success 字段判断
@@ -172,9 +201,7 @@ class NewAPICheckin:
         except requests.exceptions.Timeout:
             result['message'] = '请求超时'
         except requests.exceptions.RequestException as e:
-            result['message'] = f'网络错误: {e}'
-        except json.JSONDecodeError:
-            result['message'] = '响应解析失败'
+            result['message'] = f'网络请求失败: {e}'
         except Exception as e:
             result['message'] = f'未知错误: {e}'
 
