@@ -7,9 +7,17 @@ on:
   # 手动触发
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: newapi-checkin
+  cancel-in-progress: false
+
 jobs:
   checkin:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
 
     steps:
       - name: 检出代码

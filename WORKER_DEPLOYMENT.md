@@ -44,7 +44,7 @@ graph LR
 
 - Cloudflare 账号
 - GitHub 仓库 `https://github.com/zhikanyeye/Newapi-checkin`
-- Node.js 18 或更高版本（仅本地开发需要）
+- Node.js 22 或更高版本（仅本地开发需要）
 - Python 3.11（仅本地 Runner 测试需要）
 
 本地开发可选安装 Wrangler：

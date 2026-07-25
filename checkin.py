@@ -9,9 +9,11 @@ import os
 import sys
 import json
 import base64
+import math
 import requests
 from datetime import datetime
 from typing import Optional
+from urllib.parse import urlparse
 
 try:
     from cf_bypass import detect_cloudflare_block, CloudflareBypasser
@@ -39,13 +41,14 @@ class NewAPICheckin:
         try:
             from urllib.parse import urlparse
             parsed = urlparse(url)
-            domain_parts = parsed.netloc.split('.')
+            domain_parts = (parsed.hostname or '').split('.')
             if len(domain_parts) >= 2:
                 # 保留第一部分和最后一部分，中间用 *** 代替
                 masked_domain = f"{domain_parts[0]}.***." + '.'.join(domain_parts[-1:])
             else:
                 masked_domain = '***'
-            return f"{parsed.scheme}://{masked_domain}"
+            port = f':{parsed.port}' if parsed.port else ''
+            return f"{parsed.scheme}://{masked_domain}{port}"
         except Exception:
             return 'https://***'
 
@@ -58,17 +61,31 @@ class NewAPICheckin:
         return '****'
 
     def __init__(self, base_url: str, session_cookie: str, user_id: str = None, cf_clearance: str = None):
-        self.base_url = base_url.rstrip('/')
+        if not isinstance(base_url, str):
+            raise ValueError('站点 URL 必须是字符串')
+        parsed_url = urlparse(base_url.strip())
+        if parsed_url.scheme not in ('http', 'https') or not parsed_url.hostname:
+            raise ValueError('站点 URL 必须是有效的 HTTP(S) 地址')
+        if not isinstance(session_cookie, str) or not session_cookie.strip():
+            raise ValueError('Session Cookie 不能为空')
+
+        self.base_url = f'{parsed_url.scheme}://{parsed_url.netloc}'
         self.session_cookie = session_cookie
         self.user_id = str(user_id).strip() if user_id is not None and str(user_id).strip() else None
         self.original_cf_clearance = cf_clearance
         self.cf_bypassed = False
         self.last_user_info_error = None
         self.session = requests.Session()
-        self.session.cookies.set('session', session_cookie)
+        cookie_domain = parsed_url.hostname if ('.' in parsed_url.hostname or ':' in parsed_url.hostname) else f'{parsed_url.hostname}.local'
+        cookie_options = {
+            'domain': cookie_domain,
+            'path': '/',
+            'secure': parsed_url.scheme == 'https',
+        }
+        self.session.cookies.set('session', session_cookie, **cookie_options)
 
         if cf_clearance:
-            self.session.cookies.set('cf_clearance', cf_clearance)
+            self.session.cookies.set('cf_clearance', cf_clearance, **cookie_options)
 
         self.session.headers.update({
             'Accept': 'application/json, text/plain, */*',
@@ -181,8 +198,20 @@ class NewAPICheckin:
             if result['checkin_date'] is None and item.get('checkin_date') is not None:
                 result['checkin_date'] = item.get('checkin_date')
             if result['quota_awarded'] is None and item.get('quota_awarded') is not None:
-                result['quota_awarded'] = item.get('quota_awarded')
+                result['quota_awarded'] = NewAPICheckin._coerce_number(item.get('quota_awarded'))
         return result
+
+    @staticmethod
+    def _coerce_number(value, default=None):
+        if value is None or isinstance(value, bool):
+            return default
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            return default
+        if not math.isfinite(number):
+            return default
+        return int(number) if number.is_integer() else number
 
     def get_user_info(self, verbose: bool = False) -> Optional[dict]:
         """
@@ -195,7 +224,7 @@ class NewAPICheckin:
         """
         self.last_user_info_error = None
         try:
-            resp = self.session.get(f'{self.base_url}/api/user/self', timeout=30)
+            resp = self.session.get(f'{self.base_url}/api/user/self', timeout=30, allow_redirects=False)
 
             if verbose:
                 print(f'  [调试] HTTP 状态码: {resp.status_code}')
@@ -293,7 +322,7 @@ class NewAPICheckin:
         try:
             # NewAPI/OneAPI 的标准签到端点是 sign_in；checkin 仅保留给旧实现。
             for path in ('/api/user/sign_in', '/api/user/checkin'):
-                resp = self.session.post(f'{self.base_url}{path}', timeout=30)
+                resp = self.session.post(f'{self.base_url}{path}', timeout=30, allow_redirects=False)
 
                 if resp.status_code in (404, 405) and path == '/api/user/sign_in':
                     continue
@@ -308,7 +337,7 @@ class NewAPICheckin:
                         is_blocked, reason = detect_cloudflare_block(resp.status_code, resp.text)
                         if is_blocked:
                             print(f'[CF] 签到接口被 Cloudflare 拦截: {reason}')
-                            return self._cf_bypass_checkin()
+                            return self._cf_bypass_checkin(path)
                     content_preview = resp.text[:200] if resp.text else '(空响应)'
                     result['message'] = f'响应格式错误 (HTTP {resp.status_code}): {content_preview}'
                     return result
@@ -338,7 +367,7 @@ class NewAPICheckin:
 
         return result
 
-    def _cf_bypass_checkin(self) -> dict:
+    def _cf_bypass_checkin(self, path: str = '/api/user/sign_in') -> dict:
         """
         CF 绕过签到流程
 
@@ -363,7 +392,7 @@ class NewAPICheckin:
             return result
 
         print('[CF] 开始 Playwright 绕过流程...')
-        browser_result = bypasser.bypass_and_checkin()
+        browser_result = bypasser.bypass_and_checkin(path)
 
         if not browser_result:
             result['message'] = 'Cloudflare 绕过失败: 无法通过 CF 验证'
@@ -416,7 +445,8 @@ class NewAPICheckin:
             resp = self.session.get(
                 f'{self.base_url}/api/user/checkin',
                 params={'month': month},
-                timeout=30
+                timeout=30,
+                allow_redirects=False,
             )
             if resp.status_code == 200:
                 data = resp.json()
@@ -439,6 +469,15 @@ def parse_accounts(accounts_str: str) -> list:
     """
     accounts = []
 
+    def valid_account(url, session) -> bool:
+        if not isinstance(url, str) or not url.strip() or not isinstance(session, str) or not session.strip():
+            return False
+        try:
+            parsed = urlparse(url.strip())
+            return parsed.scheme in ('http', 'https') and bool(parsed.hostname)
+        except ValueError:
+            return False
+
     if not accounts_str:
         return accounts
 
@@ -447,18 +486,21 @@ def parse_accounts(accounts_str: str) -> list:
         data = json.loads(accounts_str)
         if isinstance(data, list):
             for item in data:
-                if isinstance(item, dict) and 'url' in item and 'session' in item:
+                if (
+                    isinstance(item, dict)
+                    and valid_account(item.get('url'), item.get('session'))
+                ):
                     account = {
-                        'url': item['url'],
-                        'session': item['session'],
-                        'name': item.get('name', '')
+                        'url': item['url'].strip(),
+                        'session': item['session'].strip(),
+                        'name': str(item.get('name') or '')
                     }
                     # 如果提供了 user_id，添加到账号信息中
-                    if 'user_id' in item:
-                        account['user_id'] = item['user_id']
+                    if item.get('user_id') is not None:
+                        account['user_id'] = str(item['user_id']).strip()
                     # 如果提供了 cf_clearance，添加到账号信息中
-                    if 'cf_clearance' in item:
-                        account['cf_clearance'] = item['cf_clearance']
+                    if isinstance(item.get('cf_clearance'), str) and item['cf_clearance'].strip():
+                        account['cf_clearance'] = item['cf_clearance'].strip()
                     accounts.append(account)
             return accounts
     except json.JSONDecodeError:
@@ -469,11 +511,12 @@ def parse_accounts(accounts_str: str) -> list:
         part = part.strip()
         if '#' in part:
             url, session = part.split('#', 1)
-            accounts.append({
-                'url': url.strip(),
-                'session': session.strip(),
-                'name': ''
-            })
+            if valid_account(url, session):
+                accounts.append({
+                    'url': url.strip(),
+                    'session': session.strip(),
+                    'name': ''
+                })
 
     return accounts
 
@@ -714,8 +757,8 @@ def main():
                 print(f'  日期: {result["checkin_date"]}')
 
             # 显示获得的额度（格式化显示）
-            if result['quota_awarded']:
-                quota = result['quota_awarded']
+            quota = NewAPICheckin._coerce_number(result.get('quota_awarded'))
+            if quota:
                 # 格式化额度显示
                 if quota >= 1000000:
                     quota_str = f'{quota / 1000000:.2f}M'
@@ -729,8 +772,8 @@ def main():
             history = client.get_checkin_history()
             if history and history.get('stats'):
                 stats = history['stats']
-                checkin_count = stats.get('checkin_count', 0)
-                total_quota = stats.get('total_quota', 0)
+                checkin_count = NewAPICheckin._coerce_number(stats.get('checkin_count'), 0)
+                total_quota = NewAPICheckin._coerce_number(stats.get('total_quota'), 0)
                 if total_quota >= 1000000:
                     total_str = f'{total_quota / 1000000:.2f}M'
                 elif total_quota >= 1000:
@@ -744,8 +787,8 @@ def main():
                 'account_id': account.get('account_id'),
                 'name': name,
                 'success': True,
-                'message': result['message'],
-                'quota_awarded': result.get('quota_awarded'),
+                'message': str(result.get('message') or ''),
+                'quota_awarded': quota,
                 'checkin_count': checkin_count
             }
             checkin_results.append(account_result)
@@ -754,7 +797,7 @@ def main():
             print(f'  结果: ❌ {result["message"]}')
 
             # 收集结果用于钉钉通知
-            message = result.get('message', '')
+            message = str(result.get('message') or '')
             account_result = {
                 'account_id': account.get('account_id'),
                 'name': name,

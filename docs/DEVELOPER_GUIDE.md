@@ -2,7 +2,7 @@
 
 ## 环境要求
 
-- Node.js 18+
+- Node.js 22+
 - Wrangler 4+
 - Python 3.11+
 - Chromium，由 Playwright 管理
@@ -61,6 +61,12 @@ Python 语法检查：
 python3 -m py_compile checkin.py cf_bypass.py dingtalk_notifier.py
 ```
 
+Python 回归测试：
+
+```bash
+python3 -B -m unittest discover -v
+```
+
 Worker 语法检查：
 
 ```bash
@@ -80,7 +86,7 @@ Git 补丁格式检查：
 git diff --check
 ```
 
-仓库当前没有自动化测试目录。涉及签到响应解析、鉴权或 D1 写入的改动应补充对应测试后再扩展行为。
+`tests/` 当前覆盖 Cookie 域限制、账号输入校验、签到端点回退和 Cloudflare 页面识别。涉及鉴权或 D1 写入的改动还应补充对应测试后再扩展行为。
 
 ## 修改检查清单
 

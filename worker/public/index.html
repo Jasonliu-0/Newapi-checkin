@@ -407,8 +407,8 @@
 
             <section class="metrics" aria-label="签到摘要">
               <article class="metric"><div class="metric-label">账号总数 <span class="metric-index">01</span></div><strong>${accounts.length}</strong></article>
-              <article class="metric"><div class="metric-label">最近成功 <span class="metric-index">02</span></div><strong class="good">${latest.success_count ?? 0}</strong></article>
-              <article class="metric"><div class="metric-label">最近失败 <span class="metric-index">03</span></div><strong class="bad">${latest.fail_count ?? 0}</strong></article>
+              <article class="metric"><div class="metric-label">最近成功 <span class="metric-index">02</span></div><strong class="good">${escapeHtml(latest.success_count ?? 0)}</strong></article>
+              <article class="metric"><div class="metric-label">最近失败 <span class="metric-index">03</span></div><strong class="bad">${escapeHtml(latest.fail_count ?? 0)}</strong></article>
               <article class="metric"><div class="metric-label">成功率 <span class="metric-index">04</span></div><strong>${successRate}%</strong></article>
             </section>
 
@@ -505,7 +505,7 @@
                     ${runs.length ? `
                       <table>
                         <thead><tr><th>执行时间</th><th>成功</th><th>失败</th><th>总数</th><th>详情</th></tr></thead>
-                        <tbody>${runs.map((run) => `<tr class="run-row" data-run-id="${run.id}"><td><span class="run-time">${escapeHtml(run.execution_time)}</span></td><td class="number-good">${run.success_count}</td><td class="number-bad">${run.fail_count}</td><td class="mono">${run.total}</td><td><button class="button secondary small">查看</button></td></tr>`).join('')}</tbody>
+                        <tbody>${runs.map((run) => `<tr class="run-row" data-run-id="${escapeHtml(run.id)}"><td><span class="run-time">${escapeHtml(run.execution_time)}</span></td><td class="number-good">${escapeHtml(run.success_count)}</td><td class="number-bad">${escapeHtml(run.fail_count)}</td><td class="mono">${escapeHtml(run.total)}</td><td><button class="button secondary small">查看</button></td></tr>`).join('')}</tbody>
                       </table>` : '<div class="empty"><strong>等待第一次运行</strong>手动触发 GitHub Actions 后，结果会出现在这里。</div>'}
                   </div>
                 </article>
@@ -513,9 +513,15 @@
             </section>
           </div>`;
 
-        document.querySelector('#logout').addEventListener('click', () => {
-          clearSession();
-          renderLogin();
+        document.querySelector('#logout').addEventListener('click', async () => {
+          try {
+            await api('/api/auth/logout', { method: 'POST' });
+          } catch {
+            // Local cleanup still completes when the session already expired.
+          } finally {
+            clearSession();
+            renderLogin();
+          }
         });
 
         document.querySelector('#copy-worker-url').addEventListener('click', async () => {

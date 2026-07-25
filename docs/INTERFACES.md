@@ -52,6 +52,10 @@ Dashboard API 使用登录接口签发的短期 Token。Runner API 使用 Cloudf
 }
 ```
 
+### POST /api/auth/logout
+
+使用 Dashboard Bearer Token 调用。Worker 删除对应的服务端会话，响应为 `{"ok": true}`。
+
 ## Dashboard API
 
 以下接口均要求 Dashboard Bearer Token。
@@ -77,7 +81,7 @@ Dashboard API 使用登录接口签发的短期 Token。Runner API 使用 Cloudf
 }
 ```
 
-`name`、`url`、`session` 和 `user_id` 为必填字段。Worker 将 `url` 规范化为 Origin，并加密完整运行配置。
+`name`、`url`、`session` 和 `user_id` 为必填字段。`url` 必须为不含嵌入式凭据的 HTTPS 地址，Worker 将其规范化为 Origin，并加密完整运行配置。
 
 ### 更新启用状态
 
@@ -145,6 +149,8 @@ Dashboard API 使用登录接口签发的短期 Token。Runner API 使用 Cloudf
   ]
 }
 ```
+
+单次最多上报 40 个账号结果，控制台也限制最多启用 40 个账号。Worker 根据 `results` 重新计算总数、成功数和失败数，并通过 D1 batch 提交运行记录、账号明细和状态更新。
 
 ## 错误响应
 

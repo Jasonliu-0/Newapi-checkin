@@ -9,7 +9,7 @@
 | 定时运行 | UTC 00:10，即北京时间约 08:10 |
 | 手动运行 | GitHub Actions `workflow_dispatch` |
 
-GitHub schedule 可能延迟。`.github/workflows/keepalive.yml` 定期运行，用于保持长期无代码提交仓库中的定时工作流活跃。
+GitHub schedule 可能延迟。公开仓库长期没有仓库活动时，GitHub 可能停用 scheduled workflows；计划任务自身的运行不计为仓库活动。`.github/workflows/keepalive.yml` 仅用于定期检查计划任务状态，维护者仍需关注 Actions 是否保持启用。
 
 ## 一次运行的阶段
 

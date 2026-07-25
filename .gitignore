@@ -43,6 +43,7 @@ Thumbs.db
 # 配置文件（包含敏感信息）
 .env
 worker/.dev.vars
+worker/.wrangler/
 config.json
 accounts.json
 newapi_accounts.json
