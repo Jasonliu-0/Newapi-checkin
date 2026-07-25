@@ -19,6 +19,7 @@
 | [FIRST_RUN.md](../FIRST_RUN.md) | 账号录入与首次签到 |
 | [WORKER_DEPLOYMENT.md](../WORKER_DEPLOYMENT.md) | 完整部署与排障 |
 | [SECURITY.md](../SECURITY.md) | 凭据、加密和安全边界 |
+| [PROMO_NODELOC.md](PROMO_NODELOC.md) | NodeLoc 社区分享稿（可直接复制） |
 
 ## 源码入口
 

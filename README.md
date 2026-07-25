@@ -238,6 +238,7 @@ Runner 按以下优先级读取账号：Worker API、`CONFIG_URL`、`NEWAPI_ACCO
 | [WORKER_DEPLOYMENT.md](WORKER_DEPLOYMENT.md) | Cloudflare、D1、GitHub Actions 的完整部署和排障 |
 | [SECURITY.md](SECURITY.md) | 凭据保护、数据加密、轮换和调试边界 |
 | [docs/INDEX.md](docs/INDEX.md) | 架构、API 与开发者文档索引 |
+| [docs/PROMO_NODELOC.md](docs/PROMO_NODELOC.md) | NodeLoc 社区分享稿（可直接复制） |
 
 ## 已知限制
 
