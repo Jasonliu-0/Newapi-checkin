@@ -385,7 +385,9 @@ class NewAPICheckin:
             result['message'] = 'Cloudflare 拦截: 需安装 Playwright 才能自动绕过 (pip install playwright && playwright install chromium)'
             return result
 
-        bypasser = CloudflareBypasser(self.base_url, self.session_cookie, self.user_id)
+        bypasser = CloudflareBypasser(
+            self.base_url, self.session_cookie, self.user_id, self.original_cf_clearance
+        )
 
         if not bypasser.is_available():
             result['message'] = 'Cloudflare 拦截: Playwright 未正确安装'
@@ -495,6 +497,9 @@ def parse_accounts(accounts_str: str) -> list:
                         'session': item['session'].strip(),
                         'name': str(item.get('name') or '')
                     }
+                    # Worker 下发的 ID 用于将签到结果写回对应的面板账号。
+                    if item.get('account_id') is not None:
+                        account['account_id'] = item['account_id']
                     # 如果提供了 user_id，添加到账号信息中
                     if item.get('user_id') is not None:
                         account['user_id'] = str(item['user_id']).strip()

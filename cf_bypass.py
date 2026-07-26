@@ -57,10 +57,12 @@ class CloudflareBypasser:
     (对应 Chrome 扩展在同一标签页中完成所有操作)
     """
 
-    def __init__(self, base_url: str, session_cookie: str = None, user_id: str = None):
+    def __init__(self, base_url: str, session_cookie: str = None, user_id: str = None,
+                 cf_clearance: str = None):
         self.base_url = base_url.rstrip('/')
         self.session_cookie = session_cookie
         self.user_id = user_id
+        self.cf_clearance = cf_clearance
         self._playwright_available = self._check_playwright()
 
     def _check_playwright(self) -> bool:
@@ -162,18 +164,27 @@ class CloudflareBypasser:
                     Object.defineProperty(navigator, 'languages', {get: () => ['zh-CN', 'zh', 'en']});
                 """)
 
-                if self.session_cookie:
+                if self.session_cookie or self.cf_clearance:
                     from urllib.parse import urlparse
                     parsed_url = urlparse(self.base_url)
-                    context.add_cookies([
-                        {
+                    cookies = []
+                    if self.session_cookie:
+                        cookies.append({
                             'name': 'session',
                             'value': self.session_cookie,
                             'domain': parsed_url.hostname,
                             'path': '/',
                             'secure': parsed_url.scheme == 'https',
-                        }
-                    ])
+                        })
+                    if self.cf_clearance:
+                        cookies.append({
+                            'name': 'cf_clearance',
+                            'value': self.cf_clearance,
+                            'domain': parsed_url.hostname,
+                            'path': '/',
+                            'secure': parsed_url.scheme == 'https',
+                        })
+                    context.add_cookies(cookies)
 
                 page = context.new_page()
 

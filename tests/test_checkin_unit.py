@@ -52,6 +52,13 @@ class NewAPICheckinTests(unittest.TestCase):
         self.assertEqual(accounts[0]['user_id'], '12')
         self.assertEqual(parse_accounts('invalid#session,https://api.example.com#,http://[::1#session'), [])
 
+    def test_parse_accounts_preserves_worker_account_id_for_result_reporting(self):
+        accounts = parse_accounts(
+            '[{"account_id": 42, "name": "主账号", "url": "https://api.example.com", "session": "good"}]'
+        )
+
+        self.assertEqual(accounts[0]['account_id'], 42)
+
     def test_standard_endpoint_falls_back_only_for_not_found(self):
         client = NewAPICheckin('https://api.example.com', 'session', '123')
         missing = Mock(status_code=404)
@@ -95,6 +102,21 @@ class NewAPICheckinTests(unittest.TestCase):
         client.checkin()
 
         client._cf_bypass_checkin.assert_called_once_with('/api/user/sign_in')
+
+    @patch('checkin.CloudflareBypasser')
+    @patch('checkin.CF_BYPASS_AVAILABLE', True)
+    def test_cloudflare_fallback_passes_clearance_cookie_to_browser(self, bypasser_class):
+        bypasser = bypasser_class.return_value
+        bypasser.is_available.return_value = True
+        bypasser.bypass_and_checkin.return_value = {'success': True, 'message': '签到成功'}
+        client = NewAPICheckin('https://api.example.com', 'session', '123', 'clearance')
+
+        result = client._cf_bypass_checkin()
+
+        self.assertTrue(result['success'])
+        bypasser_class.assert_called_once_with(
+            'https://api.example.com', 'session', '123', 'clearance'
+        )
 
 
 class CloudflareDetectionTests(unittest.TestCase):
