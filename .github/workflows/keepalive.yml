@@ -1,24 +1,28 @@
-name: Keepalive Workflow
+name: Scheduled Workflow Check
 
-# 防止 GitHub Actions 在 60 天不活动后自动禁用工作流
-# 每 50 天运行一次，保持工作流活跃
+# 定期输出工作流状态。此运行不计为仓库活动，无法阻止 GitHub
+# 对长期无仓库活动的公开仓库停用 scheduled workflows。
 
 on:
   schedule:
-    # 每 50 天运行一次 (每月 1 日和 21 日 UTC 1:00)
+    # 每月 1 日和 21 日 UTC 1:00 运行
     - cron: '0 1 1,21 * *'
   # 手动触发
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   keepalive:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 保持工作流活跃
+      - name: 输出计划任务状态
         run: |
-          echo "Keepalive ping at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-          echo "This workflow prevents GitHub from automatically disabling scheduled workflows."
+          echo "Scheduled workflow check at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "Repository activity is still required to keep scheduled workflows enabled."

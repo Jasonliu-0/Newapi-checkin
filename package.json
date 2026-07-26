@@ -1,0 +1,8 @@
+{
+  "name": "newapi-checkin",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "cd worker && npm install && npm run deploy"
+  }
+}

@@ -1,0 +1,11 @@
+# 复制为 .dev.vars 后用于 wrangler dev。
+# 三个值均由部署者自行生成，并使用互不相同的值。
+
+# 建议：openssl rand -base64 24
+DASHBOARD_PASSWORD=replace-with-dashboard-password
+
+# 建议：openssl rand -hex 32
+RUNNER_TOKEN=replace-with-runner-token
+
+# 建议：openssl rand -hex 32；请长期安全备份
+DATA_ENCRYPTION_KEY=replace-with-data-encryption-key

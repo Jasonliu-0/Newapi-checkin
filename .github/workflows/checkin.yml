@@ -1,15 +1,23 @@
 name: NewAPI 自动签到
 
 on:
-  # 定时执行：每天 UTC 0:10 (北京时间 8:10)
+  # 每天 UTC 0:10 执行一次（北京时间约 8:10）。GitHub schedule 可能延迟。
   schedule:
     - cron: '10 0 * * *'
   # 手动触发
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: newapi-checkin
+  cancel-in-progress: false
+
 jobs:
   checkin:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
 
     steps:
       - name: 检出代码
@@ -28,9 +36,8 @@ jobs:
 
       - name: 执行签到
         env:
-          CONFIG_URL: ${{ secrets.CONFIG_URL }}
-          CONFIG_AUTH: ${{ secrets.CONFIG_AUTH }}
-          NEWAPI_ACCOUNTS: ${{ secrets.NEWAPI_ACCOUNTS }}
+          CHECKIN_WORKER_URL: ${{ secrets.CHECKIN_WORKER_URL }}
+          CHECKIN_RUNNER_TOKEN: ${{ secrets.CHECKIN_RUNNER_TOKEN }}
           DINGTALK_WEBHOOK: ${{ secrets.DINGTALK_WEBHOOK }}
           DINGTALK_SECRET: ${{ secrets.DINGTALK_SECRET }}
         run: python checkin.py

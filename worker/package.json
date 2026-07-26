@@ -1,0 +1,13 @@
+{
+  "name": "newapi-checkin-worker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init:local": "wrangler d1 execute Check --local --file=./schema.sql"
+  },
+  "devDependencies": {
+    "wrangler": "4.113.0"
+  }
+}

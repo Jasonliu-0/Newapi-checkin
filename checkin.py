@@ -9,9 +9,11 @@ import os
 import sys
 import json
 import base64
+import math
 import requests
 from datetime import datetime
 from typing import Optional
+from urllib.parse import urlparse
 
 try:
     from cf_bypass import detect_cloudflare_block, CloudflareBypasser
@@ -39,13 +41,14 @@ class NewAPICheckin:
         try:
             from urllib.parse import urlparse
             parsed = urlparse(url)
-            domain_parts = parsed.netloc.split('.')
+            domain_parts = (parsed.hostname or '').split('.')
             if len(domain_parts) >= 2:
                 # 保留第一部分和最后一部分，中间用 *** 代替
                 masked_domain = f"{domain_parts[0]}.***." + '.'.join(domain_parts[-1:])
             else:
                 masked_domain = '***'
-            return f"{parsed.scheme}://{masked_domain}"
+            port = f':{parsed.port}' if parsed.port else ''
+            return f"{parsed.scheme}://{masked_domain}{port}"
         except Exception:
             return 'https://***'
 
@@ -58,15 +61,31 @@ class NewAPICheckin:
         return '****'
 
     def __init__(self, base_url: str, session_cookie: str, user_id: str = None, cf_clearance: str = None):
-        self.base_url = base_url.rstrip('/')
+        if not isinstance(base_url, str):
+            raise ValueError('站点 URL 必须是字符串')
+        parsed_url = urlparse(base_url.strip())
+        if parsed_url.scheme not in ('http', 'https') or not parsed_url.hostname:
+            raise ValueError('站点 URL 必须是有效的 HTTP(S) 地址')
+        if not isinstance(session_cookie, str) or not session_cookie.strip():
+            raise ValueError('Session Cookie 不能为空')
+
+        self.base_url = f'{parsed_url.scheme}://{parsed_url.netloc}'
         self.session_cookie = session_cookie
+        self.user_id = str(user_id).strip() if user_id is not None and str(user_id).strip() else None
         self.original_cf_clearance = cf_clearance
         self.cf_bypassed = False
+        self.last_user_info_error = None
         self.session = requests.Session()
-        self.session.cookies.set('session', session_cookie)
+        cookie_domain = parsed_url.hostname if ('.' in parsed_url.hostname or ':' in parsed_url.hostname) else f'{parsed_url.hostname}.local'
+        cookie_options = {
+            'domain': cookie_domain,
+            'path': '/',
+            'secure': parsed_url.scheme == 'https',
+        }
+        self.session.cookies.set('session', session_cookie, **cookie_options)
 
         if cf_clearance:
-            self.session.cookies.set('cf_clearance', cf_clearance)
+            self.session.cookies.set('cf_clearance', cf_clearance, **cookie_options)
 
         self.session.headers.update({
             'Accept': 'application/json, text/plain, */*',
@@ -74,15 +93,13 @@ class NewAPICheckin:
             'Cache-Control': 'no-store',
             'Pragma': 'no-cache',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Origin': self.base_url,
+            'Referer': f'{self.base_url}/',
+            'X-Requested-With': 'XMLHttpRequest',
         })
 
-        if user_id:
-            self.user_id = user_id
-            self.session.headers.update({'new-api-user': str(user_id)})
-        else:
-            self.user_id = self._extract_user_id_from_session(session_cookie)
-            if self.user_id:
-                self.session.headers.update({'new-api-user': str(self.user_id)})
+        if self.user_id:
+            self.session.headers.update({'new-api-user': self.user_id})
 
     def _extract_user_id_from_session(self, session_cookie: str) -> Optional[str]:
         """
@@ -118,6 +135,84 @@ class NewAPICheckin:
 
         return None
 
+    @staticmethod
+    def _already_checked_in(message) -> bool:
+        if message is None:
+            return False
+        msg = message if isinstance(message, str) else str(message)
+        keywords = (
+            '已签到', '已经签到', '今日已签', '重复签到',
+            'already checked', 'already check-in', 'already checkin',
+        )
+        lower = msg.lower()
+        return any((k.lower() in lower) if all(ord(c) < 128 for c in k) else (k in msg) for k in keywords)
+
+    @staticmethod
+    def _normalize_checkin_payload(data) -> dict:
+        """统一解析签到接口，兼容 data=null、嵌套 data 与「已签到」伪失败。"""
+        result = {
+            'success': False,
+            'message': '',
+            'checkin_date': None,
+            'quota_awarded': None,
+            'already_checked_in': False,
+        }
+        if not isinstance(data, dict):
+            result['message'] = f'响应格式错误: {type(data).__name__}'
+            return result
+
+        message = data.get('message')
+        if message is None:
+            message = data.get('msg')
+        if message is None and not isinstance(data.get('data'), (dict, list, type(None))):
+            message = data.get('data')
+        if message is None:
+            message = ''
+        if not isinstance(message, str):
+            try:
+                message = json.dumps(message, ensure_ascii=False)
+            except Exception:
+                message = str(message)
+
+        success_flag = (
+            data.get('success') is True
+            or data.get('status') == 'success'
+            or data.get('ret') == 1
+            or data.get('code') == 0
+        )
+        already = NewAPICheckin._already_checked_in(message)
+        result['already_checked_in'] = already
+        result['success'] = bool(success_flag or already)
+        result['message'] = message or ('签到成功' if result['success'] else '签到失败')
+
+        candidates = []
+        payload = data.get('data')
+        if isinstance(payload, dict):
+            candidates.append(payload)
+            if isinstance(payload.get('data'), dict):
+                candidates.append(payload['data'])
+        candidates.append(data)
+        for item in candidates:
+            if not isinstance(item, dict):
+                continue
+            if result['checkin_date'] is None and item.get('checkin_date') is not None:
+                result['checkin_date'] = item.get('checkin_date')
+            if result['quota_awarded'] is None and item.get('quota_awarded') is not None:
+                result['quota_awarded'] = NewAPICheckin._coerce_number(item.get('quota_awarded'))
+        return result
+
+    @staticmethod
+    def _coerce_number(value, default=None):
+        if value is None or isinstance(value, bool):
+            return default
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            return default
+        if not math.isfinite(number):
+            return default
+        return int(number) if number.is_integer() else number
+
     def get_user_info(self, verbose: bool = False) -> Optional[dict]:
         """
         获取用户信息
@@ -127,8 +222,9 @@ class NewAPICheckin:
         Args:
             verbose: 是否显示详细调试信息
         """
+        self.last_user_info_error = None
         try:
-            resp = self.session.get(f'{self.base_url}/api/user/self', timeout=30)
+            resp = self.session.get(f'{self.base_url}/api/user/self', timeout=30, allow_redirects=False)
 
             if verbose:
                 print(f'  [调试] HTTP 状态码: {resp.status_code}')
@@ -136,6 +232,7 @@ class NewAPICheckin:
 
             # 检查认证失败
             if resp.status_code == 401:
+                self.last_user_info_error = 'session'
                 print(f'[错误] 认证失败 (401): Session 可能已过期')
                 if verbose:
                     print(f'  [调试] 完整响应: {resp.text[:500]}')
@@ -149,10 +246,12 @@ class NewAPICheckin:
                 if detect_cloudflare_block:
                     is_blocked, reason = detect_cloudflare_block(resp.status_code, resp.text)
                     if is_blocked:
+                        self.last_user_info_error = 'cloudflare'
                         print(f'[CF] 获取用户信息时检测到 Cloudflare 拦截: {reason}')
                         print(f'[CF] 该站点需要 CF 绕过才能访问')
                         return None
                 print(f'[错误] 响应格式错误 (HTTP {resp.status_code}): 无法解析 JSON')
+                self.last_user_info_error = 'response'
                 if verbose:
                     print(f'  [调试] 原始响应: {resp.text[:500]}')
                 return None
@@ -172,20 +271,25 @@ class NewAPICheckin:
                         })
                     return user_data
                 else:
+                    self.last_user_info_error = 'api'
                     if verbose:
                         print(f'  [调试] API 返回失败: {data.get("message", "未知错误")}')
             else:
+                self.last_user_info_error = 'http'
                 print(f'[错误] HTTP {resp.status_code}: {data.get("message", "未知错误")}')
 
             return None
 
         except requests.exceptions.Timeout:
+            self.last_user_info_error = 'network'
             print(f'[错误] 请求超时')
             return None
         except requests.exceptions.RequestException as e:
+            self.last_user_info_error = 'network'
             print(f'[错误] 网络请求失败: {e}')
             return None
         except Exception as e:
+            self.last_user_info_error = 'unknown'
             print(f'[错误] 未知错误: {e}')
             if verbose:
                 import traceback
@@ -211,43 +315,48 @@ class NewAPICheckin:
             'quota_awarded': None
         }
 
+        if not self.user_id:
+            result['message'] = '缺少用户 ID：请在控制台填写浏览器请求头 new-api-user 的值后重试'
+            return result
+
         try:
-            resp = self.session.post(f'{self.base_url}/api/user/checkin', timeout=30)
+            # NewAPI/OneAPI 的标准签到端点是 sign_in；checkin 仅保留给旧实现。
+            for path in ('/api/user/sign_in', '/api/user/checkin'):
+                resp = self.session.post(f'{self.base_url}{path}', timeout=30, allow_redirects=False)
 
-            if resp.status_code == 401:
-                result['message'] = '认证失败: Session 可能已过期，请重新获取'
-                return result
+                if resp.status_code in (404, 405) and path == '/api/user/sign_in':
+                    continue
+                if resp.status_code == 401:
+                    result['message'] = '认证失败: Session 可能已过期或用户 ID 不匹配，请重新获取'
+                    return result
 
-            try:
-                data = resp.json()
-            except json.JSONDecodeError:
-                if detect_cloudflare_block:
-                    is_blocked, reason = detect_cloudflare_block(resp.status_code, resp.text)
-                    if is_blocked:
-                        print(f'[CF] 检测到 Cloudflare 拦截: {reason}')
-                        return self._cf_bypass_checkin()
-                content_preview = resp.text[:200] if resp.text else '(空响应)'
-                result['message'] = f'响应格式错误 (HTTP {resp.status_code}): {content_preview}'
-                return result
+                try:
+                    data = resp.json()
+                except json.JSONDecodeError:
+                    if detect_cloudflare_block:
+                        is_blocked, reason = detect_cloudflare_block(resp.status_code, resp.text)
+                        if is_blocked:
+                            print(f'[CF] 签到接口被 Cloudflare 拦截: {reason}')
+                            return self._cf_bypass_checkin(path)
+                    content_preview = resp.text[:200] if resp.text else '(空响应)'
+                    result['message'] = f'响应格式错误 (HTTP {resp.status_code}): {content_preview}'
+                    return result
 
-            if detect_cloudflare_block and resp.status_code in (403, 503):
-                is_blocked, reason = detect_cloudflare_block(resp.status_code, json.dumps(data))
-                if is_blocked:
-                    print(f'[CF] 检测到 Cloudflare 拦截: {reason}')
-                    return self._cf_bypass_checkin()
+                if resp.status_code == 200:
+                    normalized = self._normalize_checkin_payload(data)
+                    result['success'] = normalized['success']
+                    result['message'] = normalized['message']
+                    result['checkin_date'] = normalized['checkin_date']
+                    result['quota_awarded'] = normalized['quota_awarded']
+                    return result
 
-            if resp.status_code == 200:
-                if data.get('success'):
+                message = data.get('message') or data.get('msg') or '未知错误'
+                if self._already_checked_in(message):
                     result['success'] = True
-                    result['message'] = data.get('message', '签到成功')
-
-                    checkin_data = data.get('data', {})
-                    result['checkin_date'] = checkin_data.get('checkin_date')
-                    result['quota_awarded'] = checkin_data.get('quota_awarded')
+                    result['message'] = message
                 else:
-                    result['message'] = data.get('message', '签到失败')
-            else:
-                result['message'] = f'HTTP {resp.status_code}: {data.get("message", "未知错误")}'
+                    result['message'] = f'HTTP {resp.status_code}: {message}'
+                return result
 
         except requests.exceptions.Timeout:
             result['message'] = '请求超时'
@@ -258,7 +367,7 @@ class NewAPICheckin:
 
         return result
 
-    def _cf_bypass_checkin(self) -> dict:
+    def _cf_bypass_checkin(self, path: str = '/api/user/sign_in') -> dict:
         """
         CF 绕过签到流程
 
@@ -276,14 +385,16 @@ class NewAPICheckin:
             result['message'] = 'Cloudflare 拦截: 需安装 Playwright 才能自动绕过 (pip install playwright && playwright install chromium)'
             return result
 
-        bypasser = CloudflareBypasser(self.base_url, self.session_cookie, self.user_id)
+        bypasser = CloudflareBypasser(
+            self.base_url, self.session_cookie, self.user_id, self.original_cf_clearance
+        )
 
         if not bypasser.is_available():
             result['message'] = 'Cloudflare 拦截: Playwright 未正确安装'
             return result
 
         print('[CF] 开始 Playwright 绕过流程...')
-        browser_result = bypasser.bypass_and_checkin()
+        browser_result = bypasser.bypass_and_checkin(path)
 
         if not browser_result:
             result['message'] = 'Cloudflare 绕过失败: 无法通过 CF 验证'
@@ -292,22 +403,33 @@ class NewAPICheckin:
         self.cf_bypassed = True
 
         if browser_result.get('error'):
-            result['message'] = f'CF 绕过后签到失败: {browser_result["error"]}'
+            error = browser_result['error']
+            if 'Just a moment' in error or 'challenge-platform' in error or 'cf-challenge' in error:
+                result['message'] = 'Cloudflare 验证仍在进行：签到接口返回挑战页 HTML'
+            else:
+                result['message'] = f'CF 回退后签到失败: {error}'
             return result
 
-        if browser_result.get('alreadyCheckedIn'):
+        # Playwright 返回: {success, alreadyCheckedIn, message, data: <API JSON>}
+        api_data = browser_result.get('data')
+        if not isinstance(api_data, dict):
+            api_data = {
+                'success': browser_result.get('success'),
+                'message': browser_result.get('message'),
+            }
+
+        normalized = self._normalize_checkin_payload(api_data)
+        if browser_result.get('alreadyCheckedIn') or browser_result.get('success') or normalized['success']:
             result['success'] = True
-            result['message'] = browser_result.get('message', '今日已签到 (CF绕过)')
-        elif browser_result.get('success'):
-            result['success'] = True
-            result['message'] = browser_result.get('message', '签到成功 (CF绕过)')
-            data = browser_result.get('data', {})
-            if isinstance(data, dict):
-                checkin_data = data.get('data', data)
-                result['checkin_date'] = checkin_data.get('checkin_date')
-                result['quota_awarded'] = checkin_data.get('quota_awarded')
+            result['message'] = (
+                browser_result.get('message')
+                or normalized['message']
+                or ('今日已签到 (CF绕过)' if browser_result.get('alreadyCheckedIn') else '签到成功 (CF绕过)')
+            )
+            result['checkin_date'] = normalized['checkin_date']
+            result['quota_awarded'] = normalized['quota_awarded']
         else:
-            result['message'] = browser_result.get('message', 'CF 绕过后签到失败')
+            result['message'] = browser_result.get('message') or normalized['message'] or 'CF 绕过后签到失败'
 
         return result
 
@@ -325,7 +447,8 @@ class NewAPICheckin:
             resp = self.session.get(
                 f'{self.base_url}/api/user/checkin',
                 params={'month': month},
-                timeout=30
+                timeout=30,
+                allow_redirects=False,
             )
             if resp.status_code == 200:
                 data = resp.json()
@@ -348,6 +471,15 @@ def parse_accounts(accounts_str: str) -> list:
     """
     accounts = []
 
+    def valid_account(url, session) -> bool:
+        if not isinstance(url, str) or not url.strip() or not isinstance(session, str) or not session.strip():
+            return False
+        try:
+            parsed = urlparse(url.strip())
+            return parsed.scheme in ('http', 'https') and bool(parsed.hostname)
+        except ValueError:
+            return False
+
     if not accounts_str:
         return accounts
 
@@ -356,18 +488,24 @@ def parse_accounts(accounts_str: str) -> list:
         data = json.loads(accounts_str)
         if isinstance(data, list):
             for item in data:
-                if isinstance(item, dict) and 'url' in item and 'session' in item:
+                if (
+                    isinstance(item, dict)
+                    and valid_account(item.get('url'), item.get('session'))
+                ):
                     account = {
-                        'url': item['url'],
-                        'session': item['session'],
-                        'name': item.get('name', '')
+                        'url': item['url'].strip(),
+                        'session': item['session'].strip(),
+                        'name': str(item.get('name') or '')
                     }
+                    # Worker 下发的 ID 用于将签到结果写回对应的面板账号。
+                    if item.get('account_id') is not None:
+                        account['account_id'] = item['account_id']
                     # 如果提供了 user_id，添加到账号信息中
-                    if 'user_id' in item:
-                        account['user_id'] = item['user_id']
+                    if item.get('user_id') is not None:
+                        account['user_id'] = str(item['user_id']).strip()
                     # 如果提供了 cf_clearance，添加到账号信息中
-                    if 'cf_clearance' in item:
-                        account['cf_clearance'] = item['cf_clearance']
+                    if isinstance(item.get('cf_clearance'), str) and item['cf_clearance'].strip():
+                        account['cf_clearance'] = item['cf_clearance'].strip()
                     accounts.append(account)
             return accounts
     except json.JSONDecodeError:
@@ -378,11 +516,12 @@ def parse_accounts(accounts_str: str) -> list:
         part = part.strip()
         if '#' in part:
             url, session = part.split('#', 1)
-            accounts.append({
-                'url': url.strip(),
-                'session': session.strip(),
-                'name': ''
-            })
+            if valid_account(url, session):
+                accounts.append({
+                    'url': url.strip(),
+                    'session': session.strip(),
+                    'name': ''
+                })
 
     return accounts
 
@@ -467,6 +606,77 @@ def load_config_from_cloud(config_url: str, config_auth: str = None) -> Optional
         return None
 
 
+def load_config_from_worker(worker_url: str, runner_token: str) -> Optional[str]:
+    """从 Cloudflare Worker 获取加密保存的账号配置。"""
+    if not worker_url or not runner_token:
+        return None
+
+    try:
+        print('[Worker] 正在获取启用账号配置...')
+        resp = requests.get(
+            f'{worker_url.rstrip("/")}/api/runner/config',
+            headers={'Authorization': f'Bearer {runner_token}'},
+            timeout=30
+        )
+        if resp.status_code != 200:
+            try:
+                error = resp.json().get('error', resp.text[:200])
+            except json.JSONDecodeError:
+                error = resp.text[:200]
+            print(f'[Worker] 获取配置失败: HTTP {resp.status_code} - {error}')
+            return None
+        data = resp.json()
+        accounts = data.get('accounts') if isinstance(data, dict) else None
+        if not isinstance(accounts, list):
+            print('[Worker] 配置响应格式错误')
+            return None
+        if not accounts:
+            print('[Worker] 没有启用的签到账号，请先在 Worker 控制台添加或启用账号')
+            return None
+        print(f'[Worker] 成功获取 {len(accounts)} 个账号配置')
+        return json.dumps(accounts)
+    except (requests.exceptions.RequestException, json.JSONDecodeError) as exc:
+        print(f'[Worker] 获取配置失败: {exc}')
+        return None
+
+
+def report_results_to_worker(worker_url: str, runner_token: str, execution_time: str,
+                             results: list, total: int, success_count: int,
+                             fail_count: int) -> bool:
+    """将本次执行结果上报到 Cloudflare Worker。"""
+    if not worker_url or not runner_token:
+        return False
+
+    payload = {
+        'execution_time': execution_time,
+        'total': total,
+        'success_count': success_count,
+        'fail_count': fail_count,
+        'results': results,
+    }
+    try:
+        resp = requests.post(
+            f'{worker_url.rstrip("/")}/api/runner/report',
+            headers={
+                'Authorization': f'Bearer {runner_token}',
+                'Content-Type': 'application/json',
+            },
+            json=payload,
+            timeout=30
+        )
+        if resp.status_code in (200, 201):
+            print('[Worker] 签到结果上报成功')
+            return True
+        try:
+            error = resp.json().get('error', resp.text[:200])
+        except json.JSONDecodeError:
+            error = resp.text[:200]
+        print(f'[Worker] 签到结果上报失败: HTTP {resp.status_code} - {error}')
+    except requests.exceptions.RequestException as exc:
+        print(f'[Worker] 签到结果上报失败: {exc}')
+    return False
+
+
 def main():
     """主函数"""
     import pytz
@@ -479,10 +689,15 @@ def main():
 
     config_url = os.environ.get('CONFIG_URL', '')
     config_auth = os.environ.get('CONFIG_AUTH', '')
+    worker_url = os.environ.get('CHECKIN_WORKER_URL', '')
+    runner_token = os.environ.get('CHECKIN_RUNNER_TOKEN', '')
 
     accounts_str = ''
 
-    if config_url:
+    if worker_url and runner_token:
+        accounts_str = load_config_from_worker(worker_url, runner_token) or ''
+
+    if not accounts_str and config_url:
         accounts_str = load_config_from_cloud(config_url, config_auth) or ''
 
     if not accounts_str:
@@ -490,7 +705,7 @@ def main():
 
     if not accounts_str:
         print('[错误] 未配置账号信息')
-        print('请设置 CONFIG_URL（云端配置）或 NEWAPI_ACCOUNTS（本地配置）环境变量')
+        print('请设置 CHECKIN_WORKER_URL 和 CHECKIN_RUNNER_TOKEN 环境变量')
         sys.exit(1)
 
     accounts = parse_accounts(accounts_str)
@@ -527,7 +742,12 @@ def main():
             masked_username = username[:3] + '***' if len(username) > 3 else '***'
             print(f'  用户: {masked_username}')
         else:
-            print('  用户: 获取失败（可能 session 已过期）')
+            if client.last_user_info_error == 'cloudflare':
+                print('  用户: 获取失败（Cloudflare 拦截）')
+            elif client.last_user_info_error == 'session':
+                print('  用户: 获取失败（Session 已失效或用户 ID 不匹配）')
+            else:
+                print('  用户: 获取失败（用户信息接口异常）')
 
         # 执行签到
         result = client.checkin()
@@ -542,8 +762,8 @@ def main():
                 print(f'  日期: {result["checkin_date"]}')
 
             # 显示获得的额度（格式化显示）
-            if result['quota_awarded']:
-                quota = result['quota_awarded']
+            quota = NewAPICheckin._coerce_number(result.get('quota_awarded'))
+            if quota:
                 # 格式化额度显示
                 if quota >= 1000000:
                     quota_str = f'{quota / 1000000:.2f}M'
@@ -557,8 +777,8 @@ def main():
             history = client.get_checkin_history()
             if history and history.get('stats'):
                 stats = history['stats']
-                checkin_count = stats.get('checkin_count', 0)
-                total_quota = stats.get('total_quota', 0)
+                checkin_count = NewAPICheckin._coerce_number(stats.get('checkin_count'), 0)
+                total_quota = NewAPICheckin._coerce_number(stats.get('total_quota'), 0)
                 if total_quota >= 1000000:
                     total_str = f'{total_quota / 1000000:.2f}M'
                 elif total_quota >= 1000:
@@ -569,10 +789,11 @@ def main():
 
             # 收集结果用于钉钉通知
             account_result = {
+                'account_id': account.get('account_id'),
                 'name': name,
                 'success': True,
-                'message': result['message'],
-                'quota_awarded': result.get('quota_awarded'),
+                'message': str(result.get('message') or ''),
+                'quota_awarded': quota,
                 'checkin_count': checkin_count
             }
             checkin_results.append(account_result)
@@ -581,8 +802,9 @@ def main():
             print(f'  结果: ❌ {result["message"]}')
 
             # 收集结果用于钉钉通知
-            message = result.get('message', '')
+            message = str(result.get('message') or '')
             account_result = {
+                'account_id': account.get('account_id'),
                 'name': name,
                 'success': False,
                 'message': message,
@@ -604,6 +826,11 @@ def main():
     elif os.environ.get('DINGTALK_WEBHOOK'):
         print('[警告] 已配置 DINGTALK_WEBHOOK 但无法导入通知模块')
 
+    report_results_to_worker(
+        worker_url, runner_token, execution_time, checkin_results,
+        len(accounts), success_count, fail_count
+    )
+
     # 如果全部失败则返回错误码
     if fail_count == len(accounts):
         sys.exit(1)
@@ -611,6 +838,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-# === DINGTALK NOTIFICATION PATCH ===
-# This section was added to send DingTalk notifications

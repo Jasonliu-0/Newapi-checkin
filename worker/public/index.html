@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11110f">
+  <title>Check Console · NewAPI 签到控制台</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #11110f;
+      --paper: #1a1a17;
+      --paper-2: #22221e;
+      --line: #34342e;
+      --line-bright: #4a4a40;
+      --text: #f2efe5;
+      --muted: #9e9b8f;
+      --signal: #d7ff64;
+      --signal-ink: #182000;
+      --good: #7de2ad;
+      --bad: #ff7d6e;
+      --warn: #f4c95d;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-width: 320px; background: var(--ink); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font: 15px/1.55 var(--sans);
+      background:
+        linear-gradient(rgba(215, 255, 100, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(215, 255, 100, .025) 1px, transparent 1px),
+        var(--ink);
+      background-size: 32px 32px;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    h1, h2, h3, p { margin: 0; }
+    code, .mono { font-family: var(--mono); }
+
+    .shell { width: min(1240px, calc(100% - 40px)); margin: 0 auto; padding: 28px 0 64px; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      color: var(--signal-ink);
+      background: var(--signal);
+      border-radius: 4px;
+      font: 800 18px/1 var(--mono);
+      box-shadow: 5px 5px 0 #3a431b;
+    }
+    .brand strong { display: block; font-size: 15px; letter-spacing: .02em; }
+    .brand small { color: var(--muted); font: 11px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .12em; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .live { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font: 12px var(--mono); }
+    .live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 4px rgba(125, 226, 173, .1); }
+
+    .hero { display: grid; grid-template-columns: 1.5fr .8fr; gap: 24px; padding: 48px 0 28px; }
+    .kicker { color: var(--signal); font: 12px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .hero h1 { max-width: 760px; margin-top: 9px; font-size: clamp(34px, 6vw, 68px); line-height: .98; letter-spacing: -.055em; }
+    .hero-copy { max-width: 650px; margin-top: 18px; color: var(--muted); font-size: 16px; }
+    .run-meta { align-self: end; padding: 18px; border-left: 2px solid var(--signal); background: rgba(215, 255, 100, .035); }
+    .run-meta span { display: block; color: var(--muted); font: 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+    .run-meta strong { display: block; margin-top: 6px; font: 14px var(--mono); }
+
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; overflow: hidden; border: 1px solid var(--line); background: var(--line); }
+    .metric { min-height: 128px; padding: 20px; background: var(--paper); }
+    .metric-label { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font: 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .metric-index { color: var(--line-bright); }
+    .metric strong { display: block; margin-top: 18px; font: 600 clamp(30px, 4vw, 44px)/1 var(--mono); }
+    .metric strong.good { color: var(--good); }
+    .metric strong.bad { color: var(--bad); }
+
+    .setup { margin-top: 16px; border: 1px solid var(--line); background: var(--paper); }
+    .setup-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 17px 18px; border-bottom: 1px solid var(--line); }
+    .setup-head h2 { font-size: 15px; }
+    .setup-head p { color: var(--muted); font-size: 12px; }
+    .setup-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+    .setup-step { min-height: 154px; padding: 18px; border-right: 1px solid var(--line); }
+    .setup-step:last-child { border-right: 0; }
+    .setup-number { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font: 10px var(--mono); letter-spacing: .08em; }
+    .setup-check { color: var(--warn); }
+    .setup-step.done .setup-check { color: var(--good); }
+    .setup-step h3 { margin-top: 22px; font-size: 14px; }
+    .setup-step p { margin-top: 5px; color: var(--muted); font-size: 12px; }
+    .setup-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 18px; border-top: 1px solid var(--line); }
+
+    .workspace { display: grid; grid-template-columns: minmax(330px, .82fr) minmax(0, 1.5fr); gap: 16px; margin-top: 16px; }
+    .stack { display: grid; gap: 16px; align-content: start; }
+    .panel { border: 1px solid var(--line); background: rgba(26, 26, 23, .96); }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 17px 18px; border-bottom: 1px solid var(--line); }
+    .panel-head h2 { font-size: 15px; letter-spacing: .01em; }
+    .panel-head span { color: var(--muted); font: 11px var(--mono); }
+    .panel-body { padding: 18px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field { display: grid; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { color: var(--muted); font: 11px var(--mono); letter-spacing: .05em; text-transform: uppercase; }
+    .field-help { color: #77746b; font-size: 11px; }
+    input {
+      width: 100%;
+      padding: 11px 12px;
+      color: var(--text);
+      background: #121210;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      outline: none;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    input:focus { border-color: var(--signal); box-shadow: 0 0 0 3px rgba(215, 255, 100, .08); }
+    input::placeholder { color: #66645c; }
+    .form-note { margin-top: 12px; color: var(--muted); font-size: 12px; }
+    .input-guide { margin-top: 14px; border: 1px solid var(--line); background: #151512; }
+    .input-guide summary { padding: 11px 12px; cursor: pointer; color: var(--signal); font: 11px var(--mono); letter-spacing: .04em; }
+    .guide-content { display: grid; gap: 12px; padding: 0 12px 13px; color: var(--muted); font-size: 12px; }
+    .guide-content strong { color: var(--text); }
+    .guide-content ol { margin: 0; padding-left: 20px; }
+    .guide-content li + li { margin-top: 5px; }
+    .guide-content code { color: var(--signal); }
+
+    .button {
+      min-height: 40px;
+      padding: 9px 14px;
+      border: 1px solid var(--signal);
+      border-radius: 2px;
+      color: var(--signal-ink);
+      background: var(--signal);
+      font-weight: 750;
+      transition: transform .15s, background .15s;
+    }
+    .button:hover { transform: translateY(-1px); background: #e3ff8a; }
+    .button:active { transform: translateY(0); }
+    .button.secondary { color: var(--text); background: transparent; border-color: var(--line-bright); font-weight: 600; }
+    .button.secondary:hover { background: var(--paper-2); }
+    .button.small { min-height: 32px; padding: 5px 10px; font-size: 12px; }
+    .form-submit { width: 100%; margin-top: 14px; }
+    .form-buttons { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 14px; }
+    .form-buttons .form-submit { margin-top: 0; }
+    [hidden] { display: none !important; }
+
+    .security-list { display: grid; gap: 12px; }
+    .security-item { display: grid; grid-template-columns: 28px 1fr; gap: 10px; }
+    .security-code { color: var(--signal); font: 11px var(--mono); }
+    .security-item strong { display: block; font-size: 13px; }
+    .security-item p { color: var(--muted); font-size: 12px; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); background: rgba(255, 255, 255, .012); font: 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    tbody tr { transition: background .15s; }
+    tbody tr:hover { background: rgba(215, 255, 100, .025); }
+    tbody tr:last-child td { border-bottom: 0; }
+    .account-name { font-weight: 700; }
+    .account-url, .account-message { display: block; max-width: 360px; overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .account-url { margin-top: 2px; font-family: var(--mono); }
+    .account-message { margin-top: 5px; }
+    .status { display: inline-flex; align-items: center; gap: 7px; font: 12px var(--mono); }
+    .status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--warn); }
+    .status.good { color: var(--good); }
+    .status.good::before { background: var(--good); }
+    .status.bad { color: var(--bad); }
+    .status.bad::before { background: var(--bad); }
+    .status.off { color: var(--muted); }
+    .status.off::before { background: var(--line-bright); }
+    .fail-count { color: var(--muted); font: 12px var(--mono); }
+    .empty { padding: 48px 20px; text-align: center; color: var(--muted); }
+    .empty strong { display: block; margin-bottom: 4px; color: var(--text); }
+    .run-row { cursor: pointer; }
+    .run-time { font-family: var(--mono); font-size: 12px; }
+    .number-good { color: var(--good); font-family: var(--mono); }
+    .number-bad { color: var(--bad); font-family: var(--mono); }
+
+    .toast { position: fixed; right: 24px; bottom: 24px; z-index: 20; max-width: min(380px, calc(100% - 48px)); padding: 13px 16px; color: var(--ink); background: var(--signal); border-radius: 3px; font-weight: 700; box-shadow: 10px 10px 0 rgba(0, 0, 0, .25); transform: translateY(120px); opacity: 0; transition: .22s ease; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { color: #fff; background: var(--bad); }
+
+    .login-page { min-height: 100vh; display: grid; grid-template-columns: 1.1fr .9fr; }
+    .login-story { position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 100vh; padding: clamp(30px, 6vw, 76px); overflow: hidden; border-right: 1px solid var(--line); }
+    .login-story::after { content: "CHECK"; position: absolute; right: -30px; bottom: -90px; color: rgba(215, 255, 100, .045); font: 900 clamp(140px, 28vw, 420px)/1 var(--mono); letter-spacing: -.12em; pointer-events: none; }
+    .login-story h1 { max-width: 780px; font-size: clamp(48px, 8vw, 112px); line-height: .86; letter-spacing: -.075em; }
+    .login-story h1 em { color: var(--signal); font-style: normal; }
+    .login-story-copy { position: relative; z-index: 1; max-width: 620px; color: var(--muted); font-size: 16px; }
+    .login-box { display: grid; place-items: center; padding: 32px; background: var(--paper); }
+    .login-card { width: min(420px, 100%); }
+    .login-card h2 { margin-top: 13px; font-size: 30px; letter-spacing: -.03em; }
+    .login-card > p { margin-top: 9px; color: var(--muted); }
+    .login-form { margin-top: 28px; }
+    .login-form .button { width: 100%; margin-top: 12px; }
+    .login-facts { display: grid; gap: 10px; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .login-fact { display: grid; grid-template-columns: 62px 1fr; gap: 12px; color: var(--muted); font-size: 12px; }
+    .login-fact code { color: var(--signal); }
+    .login-error { min-height: 22px; margin-top: 10px; color: var(--bad); font-size: 13px; }
+    .loading { min-height: 100vh; display: grid; place-items: center; color: var(--muted); font: 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+
+    @media (max-width: 960px) {
+      .hero { grid-template-columns: 1fr; }
+      .run-meta { align-self: auto; }
+      .workspace { grid-template-columns: 1fr; }
+      .setup-grid { grid-template-columns: 1fr 1fr; }
+      .setup-step:nth-child(2) { border-right: 0; }
+      .setup-step:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .login-page { grid-template-columns: 1fr; }
+      .login-story { min-height: 44vh; border-right: 0; border-bottom: 1px solid var(--line); }
+      .login-box { min-height: 56vh; }
+    }
+    @media (max-width: 680px) {
+      .shell { width: min(100% - 24px, 1240px); padding-top: 16px; }
+      .topbar { align-items: flex-start; }
+      .live { display: none; }
+      .hero { padding-top: 34px; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .metric { min-height: 108px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .setup-grid { grid-template-columns: 1fr; }
+      .setup-step { min-height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      .setup-step:nth-child(2) { border-right: 0; }
+      .setup-step:last-child { border-bottom: 0; }
+      .field.full { grid-column: auto; }
+      th, td { padding: 12px; }
+      .login-story { padding: 34px 24px; }
+      .login-box { padding: 34px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main id="app"></main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script>
+    const app = document.querySelector('#app');
+    const toastNode = document.querySelector('#toast');
+    const tokenKey = 'check_console_token';
+    const expiryKey = 'check_console_expiry';
+
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    })[character]);
+
+    const token = () => localStorage.getItem(tokenKey);
+    const expiry = () => localStorage.getItem(expiryKey);
+
+    function clearSession() {
+      localStorage.removeItem(tokenKey);
+      localStorage.removeItem(expiryKey);
+    }
+
+    function formatTime(value) {
+      if (!value) return '尚未运行';
+      const date = new Date(value.includes('T') ? value : value.replace(' ', 'T') + '+08:00');
+      if (Number.isNaN(date.getTime())) return value;
+      return new Intl.DateTimeFormat('zh-CN', {
+        month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false,
+      }).format(date);
+    }
+
+    function showToast(message, isError = false) {
+      toastNode.textContent = message;
+      toastNode.className = `toast show${isError ? ' error' : ''}`;
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => { toastNode.className = 'toast'; }, 2600);
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(path, {
+        ...options,
+        headers: {
+          'content-type': 'application/json',
+          ...(token() ? { authorization: `Bearer ${token()}` } : {}),
+          ...(options.headers || {}),
+        },
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.status === 401) {
+        clearSession();
+        renderLogin('登录状态已过期，请重新登录。');
+        throw new Error('登录状态已过期');
+      }
+      if (!response.ok) throw new Error(data.error || '请求失败');
+      return data;
+    }
+
+    function renderLogin(message = '') {
+      app.innerHTML = `
+        <div class="login-page">
+          <section class="login-story">
+            <div class="brand">
+              <div class="brand-mark">C/</div>
+              <div><strong>Check Console</strong><small>NewAPI automation</small></div>
+            </div>
+            <h1>知道每次<br><em>签到结果。</em></h1>
+            <p class="login-story-copy">账号配置、运行状态与历史结果集中在同一个 Worker。认证信息在写入 D1 前使用 AES-GCM 加密。</p>
+          </section>
+          <section class="login-box">
+            <div class="login-card">
+              <div class="kicker">Secure access</div>
+              <h2>进入控制台</h2>
+              <p>输入 Cloudflare 中绑定的 <code>DASHBOARD_PASSWORD</code>。</p>
+              <form id="login-form" class="login-form">
+                <div class="field">
+                  <label for="password">访问口令</label>
+                  <input id="password" type="password" name="password" autocomplete="current-password" placeholder="输入访问口令" required autofocus>
+                </div>
+                <button class="button" type="submit">验证并进入</button>
+              </form>
+              <p class="login-error">${escapeHtml(message)}</p>
+              <div class="login-facts">
+                <div class="login-fact"><code>24H</code><span>默认登录有效期只作用于当前浏览器控制台。</span></div>
+                <div class="login-fact"><code>RUN</code><span>每日自动签到使用独立 Runner Token，不受登录有效期影响。</span></div>
+                <div class="login-fact"><code>D1</code><span>Session 和 cf_clearance 以密文形式保存。</span></div>
+              </div>
+            </div>
+          </section>
+        </div>`;
+
+      document.querySelector('#login-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const button = event.currentTarget.querySelector('button');
+        button.disabled = true;
+        button.textContent = '正在验证...';
+        try {
+          const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ password: new FormData(event.currentTarget).get('password') }),
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(data.error || '登录失败');
+          localStorage.setItem(tokenKey, data.token);
+          localStorage.setItem(expiryKey, data.expires_at || '');
+          await renderDashboard();
+        } catch (error) {
+          renderLogin(error.message);
+        }
+      });
+    }
+
+    function accountStatus(account) {
+      if (!account.enabled) return { label: '已停用', className: 'off' };
+      if (account.last_status === 'success') return { label: '运行正常', className: 'good' };
+      if (account.last_status === 'failed') return { label: '签到失败', className: 'bad' };
+      return { label: '等待首跑', className: '' };
+    }
+
+    async function showRun(runId) {
+      try {
+        const data = await api(`/api/dashboard/runs/${runId}`);
+        const lines = (data.results || []).map((result) => `${result.success ? '成功' : '失败'} · ${result.name} · ${result.message || '无详情'}`);
+        showToast(lines.length ? lines.join('  |  ') : '该次运行没有账号明细');
+      } catch (error) {
+        showToast(error.message, true);
+      }
+    }
+
+    async function renderDashboard() {
+      app.innerHTML = '<div class="loading">Loading check console...</div>';
+      try {
+        const [summary, history] = await Promise.all([
+          api('/api/dashboard/summary'),
+          api('/api/dashboard/runs'),
+        ]);
+        const latest = summary.latest || {};
+        const accounts = summary.accounts || [];
+        const runs = history.runs || [];
+        const successRate = latest.total ? Math.round((latest.success_count / latest.total) * 100) : 0;
+        const healthyAccounts = accounts.filter((account) => account.enabled && account.last_status === 'success').length;
+
+        app.innerHTML = `
+          <div class="shell">
+            <header class="topbar">
+              <div class="brand">
+                <div class="brand-mark">C/</div>
+                <div><strong>Check Console</strong><small>NewAPI automation</small></div>
+              </div>
+              <div class="top-actions">
+                <span class="live">Worker online</span>
+                <button id="logout" class="button secondary small">退出登录</button>
+              </div>
+            </header>
+
+            <section class="hero">
+              <div>
+                <div class="kicker">Operations overview</div>
+                <h1>自动签到，<br>结果清清楚楚。</h1>
+                <p class="hero-copy">GitHub Actions 负责执行，Cloudflare Worker 负责配置与记录。控制台登录和 Runner 鉴权相互独立。</p>
+              </div>
+              <div class="run-meta">
+                <span>Last execution</span>
+                <strong>${escapeHtml(latest.execution_time || 'Waiting for first run')}</strong>
+              </div>
+            </section>
+
+            <section class="metrics" aria-label="签到摘要">
+              <article class="metric"><div class="metric-label">账号总数 <span class="metric-index">01</span></div><strong>${accounts.length}</strong></article>
+              <article class="metric"><div class="metric-label">最近成功 <span class="metric-index">02</span></div><strong class="good">${escapeHtml(latest.success_count ?? 0)}</strong></article>
+              <article class="metric"><div class="metric-label">最近失败 <span class="metric-index">03</span></div><strong class="bad">${escapeHtml(latest.fail_count ?? 0)}</strong></article>
+              <article class="metric"><div class="metric-label">成功率 <span class="metric-index">04</span></div><strong>${successRate}%</strong></article>
+            </section>
+
+            <section class="setup">
+              <div class="setup-head">
+                <div><h2>首次使用进度</h2><p>按顺序完成四步，Worker 才能与 GitHub Actions 形成完整签到链路。</p></div>
+                <span class="mono">${runs.length ? '4 / 4' : accounts.length ? '2 / 4' : '1 / 4'}</span>
+              </div>
+              <div class="setup-grid">
+                <article class="setup-step done"><div class="setup-number"><span>STEP 01</span><span class="setup-check">READY</span></div><h3>Worker 已可访问</h3><p>当前页面已通过 Dashboard Password 登录，Worker 与 D1 连接可用。</p></article>
+                <article class="setup-step ${accounts.length ? 'done' : ''}"><div class="setup-number"><span>STEP 02</span><span class="setup-check">${accounts.length ? 'DONE' : 'TODO'}</span></div><h3>录入签到账号</h3><p>${accounts.length ? `已保存 ${accounts.length} 个账号。` : '使用下方表单填写站点 URL 和 Session Cookie。'}</p></article>
+                <article class="setup-step ${runs.length ? 'done' : ''}"><div class="setup-number"><span>STEP 03</span><span class="setup-check">${runs.length ? 'DONE' : 'TODO'}</span></div><h3>连接 GitHub Secrets</h3><p>将当前 Worker 地址和同一个 Runner Token 保存到仓库 Secrets。</p></article>
+                <article class="setup-step ${runs.length ? 'done' : ''}"><div class="setup-number"><span>STEP 04</span><span class="setup-check">${runs.length ? 'DONE' : 'TODO'}</span></div><h3>手动运行一次</h3><p>${runs.length ? '已收到 Actions 上报的签到记录。' : '打开 Actions，执行 NewAPI 自动签到工作流。'}</p></article>
+              </div>
+              <div class="setup-actions">
+                <button id="copy-worker-url" class="button secondary small">复制 Worker 地址</button>
+                <a class="button secondary small" href="https://github.com/zhikanyeye/Newapi-checkin/settings/secrets/actions" target="_blank" rel="noreferrer">打开 GitHub Secrets</a>
+                <a class="button secondary small" href="https://github.com/zhikanyeye/Newapi-checkin/actions/workflows/checkin.yml" target="_blank" rel="noreferrer">打开签到 Actions</a>
+                <a class="button secondary small" href="https://github.com/zhikanyeye/Newapi-checkin/blob/main/FIRST_RUN.md" target="_blank" rel="noreferrer">查看首次使用指南</a>
+              </div>
+            </section>
+
+            <section class="workspace">
+              <div class="stack">
+                <article class="panel">
+                  <div class="panel-head"><h2>添加签到账号</h2><span>ENCRYPTED AT REST</span></div>
+                  <div class="panel-body">
+                    <form id="account-form">
+                      <input type="hidden" name="account_id" id="account-id">
+                      <div class="form-grid">
+                        <div class="field"><label for="name">备注名称</label><input id="name" name="name" placeholder="例如：主力站" required><span class="field-help">仅用于控制台区分账号，可自由填写。</span></div>
+                        <div class="field"><label for="user-id">用户 ID</label><input id="user-id" name="user_id" inputmode="numeric" placeholder="浏览器请求头 new-api-user 的值" required><span class="field-help">必填。F12 → Network → 任意 Fetch/XHR 请求头中复制 new-api-user。</span></div>
+                        <div class="field full"><label for="url">站点地址</label><input id="url" name="url" type="url" placeholder="https://api.example.com" required><span class="field-help">填写登录站点的根地址，不包含 /console 或其他页面路径。</span></div>
+                        <div class="field full"><label for="session">Session Cookie</label><input id="session" name="session" type="password" placeholder="只粘贴 session 的值" required><span class="field-help">粘贴 Cookie 中 session= 后面的值，不包含 session= 和分号。</span></div>
+                        <div class="field full"><label for="clearance">cf_clearance</label><input id="clearance" name="cf_clearance" type="password" placeholder="通常留空"><span class="field-help">只有站点受 Cloudflare 挑战保护且自动回退失败时才需要。</span></div>
+                      </div>
+                      <details class="input-guide">
+                        <summary>如何从浏览器获取 Session Cookie</summary>
+                        <div class="guide-content">
+                          <ol>
+                            <li>在目标 NewAPI 站点完成登录。</li>
+                            <li>按 F12 打开开发者工具，进入 Application 或 应用 标签。</li>
+                            <li>依次打开 Storage -> Cookies -> 当前站点域名。</li>
+                            <li>找到名称为 <code>session</code> 的 Cookie，复制 Value 列完整内容。</li>
+                            <li>回到本表单，只粘贴 Value；无需填写 <code>session=</code>。</li>
+                          </ol>
+                          <p><strong>用户 ID：</strong>必须填写。打开 F12 → Network，筛选 Fetch/XHR，复制请求头 <code>new-api-user</code> 的值。Session Cookie 内的内容无法可靠推导这个值。</p>
+                          <p><strong>cf_clearance：</strong>获取方式与 session 相同，在 Cookies 列表复制同名 Cookie 的 Value。</p>
+                        </div>
+                      </details>
+                      <p class="form-note">保存后 Worker 加密写入 D1，控制台查询接口不会返回 Session 或密文。</p>
+                      <div class="form-buttons">
+                        <button class="button form-submit" type="submit">加密保存账号</button>
+                        <button class="button secondary" type="button" id="cancel-edit" hidden>取消更新</button>
+                      </div>
+                    </form>
+                  </div>
+                </article>
+
+                <article class="panel">
+                  <div class="panel-head"><h2>安全边界</h2><span>${healthyAccounts}/${accounts.filter((a) => a.enabled).length} HEALTHY</span></div>
+                  <div class="panel-body security-list">
+                    <div class="security-item"><span class="security-code">01</span><div><strong>浏览器会话</strong><p>默认 24 小时，到期后只需重新登录控制台。</p></div></div>
+                    <div class="security-item"><span class="security-code">02</span><div><strong>Runner Token</strong><p>GitHub Actions 独立使用，不受浏览器会话过期影响。</p></div></div>
+                    <div class="security-item"><span class="security-code">03</span><div><strong>账号密文</strong><p>AES-GCM 加密后写入绑定名为 Check 的 D1。</p></div></div>
+                  </div>
+                </article>
+              </div>
+
+              <div class="stack">
+                <article class="panel">
+                  <div class="panel-head"><h2>账号健康状态</h2><span>${accounts.length} ACCOUNTS</span></div>
+                  <div class="table-wrap">
+                    ${accounts.length ? `
+                      <table>
+                        <thead><tr><th>账号 / 站点</th><th>状态</th><th>连续失败</th><th>最近更新</th><th>操作</th></tr></thead>
+                        <tbody>${accounts.map((account) => {
+                          const status = accountStatus(account);
+                          return `<tr>
+                            <td><span class="account-name">${escapeHtml(account.name)}</span><span class="account-url">${escapeHtml(account.url)}</span><span class="account-message" title="${escapeHtml(account.last_message || '')}">${escapeHtml(account.last_message || '尚无签到结果')}</span></td>
+                            <td><span class="status ${status.className}">${status.label}</span></td>
+                            <td><span class="fail-count">${account.failure_count || 0}</span></td>
+                            <td><span class="run-time">${formatTime(account.last_checkin_at)}</span></td>
+                            <td><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="button secondary small account-edit" data-id="${account.id}" data-name="${escapeHtml(account.name)}" data-url="${escapeHtml(account.url)}">更新凭据</button><button class="button secondary small account-toggle" data-id="${account.id}" data-enabled="${account.enabled}">${account.enabled ? '停用' : '启用'}</button></div></td>
+                          </tr>`;
+                        }).join('')}</tbody>
+                      </table>` : '<div class="empty"><strong>还没有签到账号</strong>使用左侧表单添加第一个账号。</div>'}
+                  </div>
+                </article>
+
+                <article class="panel">
+                  <div class="panel-head"><h2>运行历史</h2><span>LAST 30 RUNS</span></div>
+                  <div class="table-wrap">
+                    ${runs.length ? `
+                      <table>
+                        <thead><tr><th>执行时间</th><th>成功</th><th>失败</th><th>总数</th><th>详情</th></tr></thead>
+                        <tbody>${runs.map((run) => `<tr class="run-row" data-run-id="${escapeHtml(run.id)}"><td><span class="run-time">${escapeHtml(run.execution_time)}</span></td><td class="number-good">${escapeHtml(run.success_count)}</td><td class="number-bad">${escapeHtml(run.fail_count)}</td><td class="mono">${escapeHtml(run.total)}</td><td><button class="button secondary small">查看</button></td></tr>`).join('')}</tbody>
+                      </table>` : '<div class="empty"><strong>等待第一次运行</strong>手动触发 GitHub Actions 后，结果会出现在这里。</div>'}
+                  </div>
+                </article>
+              </div>
+            </section>
+          </div>`;
+
+        document.querySelector('#logout').addEventListener('click', async () => {
+          try {
+            await api('/api/auth/logout', { method: 'POST' });
+          } catch {
+            // Local cleanup still completes when the session already expired.
+          } finally {
+            clearSession();
+            renderLogin();
+          }
+        });
+
+        document.querySelector('#copy-worker-url').addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(location.origin);
+            showToast(`已复制 Worker 地址：${location.origin}`);
+          } catch {
+            showToast(`Worker 地址：${location.origin}`);
+          }
+        });
+
+        document.querySelector('#account-form').addEventListener('submit', async (event) => {
+          event.preventDefault();
+          const button = event.currentTarget.querySelector('button[type="submit"]');
+          const payload = Object.fromEntries(new FormData(event.currentTarget));
+          const accountId = payload.account_id;
+          delete payload.account_id;
+          Object.keys(payload).forEach((field) => { if (!payload[field]) delete payload[field]; });
+          button.disabled = true;
+          button.textContent = '正在加密保存...';
+          try {
+            await api(accountId ? `/api/dashboard/accounts/${accountId}` : '/api/dashboard/accounts', {
+              method: accountId ? 'PATCH' : 'POST',
+              body: JSON.stringify(payload),
+            });
+            showToast(accountId ? '账号凭据已更新' : '账号已加密保存');
+            await renderDashboard();
+          } catch (error) {
+            button.disabled = false;
+            button.textContent = '加密保存账号';
+            showToast(error.message, true);
+          }
+        });
+
+        document.querySelectorAll('.account-edit').forEach((button) => {
+          button.addEventListener('click', () => {
+            const form = document.querySelector('#account-form');
+            form.elements.account_id.value = button.dataset.id;
+            form.elements.name.value = button.dataset.name;
+            form.elements.url.value = button.dataset.url;
+            form.elements.session.value = '';
+            form.querySelector('button[type="submit"]').textContent = '加密更新凭据';
+            document.querySelector('#cancel-edit').hidden = false;
+            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            form.elements.session.focus({ preventScroll: true });
+          });
+        });
+
+        document.querySelector('#cancel-edit').addEventListener('click', () => {
+          const form = document.querySelector('#account-form');
+          form.reset();
+          form.elements.account_id.value = '';
+          form.querySelector('button[type="submit"]').textContent = '加密保存账号';
+          document.querySelector('#cancel-edit').hidden = true;
+        });
+
+        document.querySelectorAll('.account-toggle').forEach((button) => {
+          button.addEventListener('click', async () => {
+            try {
+              await api(`/api/dashboard/accounts/${button.dataset.id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ enabled: button.dataset.enabled !== 'true' }),
+              });
+              showToast(button.dataset.enabled === 'true' ? '账号已停用' : '账号已启用');
+              await renderDashboard();
+            } catch (error) {
+              showToast(error.message, true);
+            }
+          });
+        });
+
+        document.querySelectorAll('.run-row').forEach((row) => {
+          row.addEventListener('click', () => showRun(row.dataset.runId));
+        });
+      } catch (error) {
+        if (error.message !== '登录状态已过期') {
+          app.innerHTML = `<div class="loading">${escapeHtml(error.message)}</div>`;
+        }
+      }
+    }
+
+    if (token() && (!expiry() || new Date(expiry()).getTime() > Date.now())) {
+      renderDashboard();
+    } else {
+      clearSession();
+      renderLogin();
+    }
+  </script>
+</body>
+</html>

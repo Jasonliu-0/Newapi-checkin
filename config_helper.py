@@ -35,11 +35,11 @@ def get_yes_no(prompt: str, default: bool = True) -> bool:
     return value in ['y', 'yes', '是']
 
 
-def test_account(url: str, session: str) -> bool:
+def test_account(url: str, session: str, user_id: str) -> bool:
     """测试账号配置是否有效"""
     try:
         from checkin import NewAPICheckin
-        client = NewAPICheckin(url, session)
+        client = NewAPICheckin(url, session, user_id)
         user_info = client.get_user_info()
         if user_info:
             print(f'  ✅ 测试成功！用户名: {user_info.get("username")}')
@@ -93,7 +93,7 @@ def collect_accounts():
         # 是否测试
         if get_yes_no('是否测试此账号配置', True):
             print('正在测试...')
-            test_account(url, session)
+            test_account(url, session, user_id)
 
         # 添加到列表
         account_data = {
@@ -116,18 +116,9 @@ def collect_accounts():
     return accounts
 
 
-def generate_config(accounts: list) -> dict:
-    """生成配置字符串"""
-    # JSON 格式（推荐）
-    json_config = json.dumps(accounts, ensure_ascii=False, indent=2)
-
-    # 简单格式
-    simple_config = ','.join([f"{acc['url']}#{acc['session']}" for acc in accounts])
-
-    return {
-        'json': json_config,
-        'simple': simple_config
-    }
+def generate_config(accounts: list) -> str:
+    """生成包含用户 ID 的 JSON 配置。"""
+    return json.dumps(accounts, ensure_ascii=False, indent=2)
 
 
 def save_to_file(content: str, filename: str):
@@ -158,18 +149,11 @@ def main():
     print('配置生成成功！')
     print('=' * 60)
 
-    configs = generate_config(accounts)
+    config = generate_config(accounts)
 
-    # 显示 JSON 格式（推荐）
-    print('\n【方式 1】JSON 格式（推荐，支持备注）：')
+    print('\n【JSON 配置】：')
     print('-' * 60)
-    print(configs['json'])
-    print('-' * 60)
-
-    # 显示简单格式
-    print('\n【方式 2】简单格式（不支持备注）：')
-    print('-' * 60)
-    print(configs['simple'])
+    print(config)
     print('-' * 60)
 
     # 使用说明
@@ -185,24 +169,13 @@ def main():
 
     # 保存选项
     if get_yes_no('\n是否保存配置到文件', True):
-        print('\n选择保存格式：')
-        print('1. JSON 格式（推荐）')
-        print('2. 简单格式')
-        print('3. 两种都保存')
-
-        choice = get_input('请选择 (1/2/3)', '1')
-
-        if choice in ['1', '3']:
-            save_to_file(configs['json'], 'newapi_accounts.json')
-
-        if choice in ['2', '3']:
-            save_to_file(configs['simple'], 'newapi_accounts.txt')
+        save_to_file(config, 'newapi_accounts.json')
 
     print('\n' + '=' * 60)
     print('配置完成！')
     print('=' * 60)
     print('\n💡 提示：')
-    print('- JSON 文件和 TXT 文件已添加到 .gitignore，不会被提交')
+    print('- JSON 文件已添加到 .gitignore，不会被提交')
     print('- 请妥善保管 Session Cookie，不要泄露给他人')
     print('- Session 通常 7-30 天过期，请定期更新')
 
