@@ -70,13 +70,15 @@ def collect_accounts():
                 url = 'https://' + url
             break
 
-        # Session Cookie
-        while True:
-            session = get_input('Session Cookie')
-            if not session:
-                print('❌ Session 不能为空')
-                continue
-            break
+        # Session / 系统访问令牌（二选一）
+        print('\n💡 系统访问令牌在站点「个人设置」中生成，配置后不依赖 session，')
+        print('   且支持开启 Turnstile 人机验证的站点（推荐）')
+        session = get_input('Session Cookie（与令牌二选一）', '')
+        access_token = get_input('系统访问令牌（与 Session 二选一）', '')
+        while not session and not access_token:
+            print('❌ Session 与 系统访问令牌 至少需要填写一个!')
+            session = get_input('Session Cookie（与令牌二选一）', '')
+            access_token = get_input('系统访问令牌（与 Session 二选一）', '')
 
         # 备注名称（可选）
         name = get_input('备注名称（可选，便于识别）', f'站点{account_num}')
@@ -102,6 +104,8 @@ def collect_accounts():
             'user_id': user_id,
             'name': name
         }
+        if access_token:
+            account_data['access_token'] = access_token
 
         accounts.append(account_data)
 
@@ -121,8 +125,11 @@ def generate_config(accounts: list) -> dict:
     # JSON 格式（推荐）
     json_config = json.dumps(accounts, ensure_ascii=False, indent=2)
 
-    # 简单格式
-    simple_config = ','.join([f"{acc['url']}#{acc['session']}" for acc in accounts])
+    # 简单格式（配置了访问令牌的账号用三段式 url#session#access_token）
+    simple_config = ','.join([
+        f"{acc['url']}#{acc['session']}" + (f"#{acc['access_token']}" if acc.get('access_token') else '')
+        for acc in accounts
+    ])
 
     return {
         'json': json_config,
