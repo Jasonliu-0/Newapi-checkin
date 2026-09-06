@@ -18,6 +18,19 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
+      - name: 脱敏输入（掩码防止 token 出现在日志）
+        run: |
+          ACC=$(jq -r '.inputs.accounts // ""' "$GITHUB_EVENT_PATH")
+          if [ -n "$ACC" ] && [ "$ACC" != "null" ]; then
+            echo "::add-mask::$ACC"
+            echo "$ACC" | jq -r '.[]?.access_token? // empty' | while read -r t; do
+              [ -n "$t" ] && echo "::add-mask::$t"
+            done
+            echo "$ACC" | jq -r '.[]?.session? // empty' | while read -r s; do
+              [ -n "$s" ] && echo "::add-mask::$s"
+            done
+          fi
+
       - name: 设置 Python
         uses: actions/setup-python@v5
         with:
