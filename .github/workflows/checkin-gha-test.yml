@@ -2,6 +2,12 @@ name: Turnstile 签到测试 (GHA)
 
 on:
   workflow_dispatch:
+    inputs:
+      accounts:
+        description: 'NEWAPI_ACCOUNTS 配置（JSON 格式，留空则使用 Secret 中的 NEWAPI_ACCOUNTS）'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   checkin-test:
@@ -30,5 +36,5 @@ jobs:
 
       - name: 执行签到（xvfb 虚拟显示，含 Turnstile 解验证）
         env:
-          NEWAPI_ACCOUNTS: ${{ secrets.NEWAPI_ACCOUNTS }}
+          NEWAPI_ACCOUNTS: ${{ inputs.accounts || secrets.NEWAPI_ACCOUNTS }}
         run: xvfb-run --auto-servernum python checkin.py
