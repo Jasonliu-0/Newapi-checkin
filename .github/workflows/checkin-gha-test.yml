@@ -19,15 +19,16 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 脱敏输入（掩码防止 token 出现在日志）
+        continue-on-error: true
         run: |
-          ACC=$(jq -r '.inputs.accounts // ""' "$GITHUB_EVENT_PATH")
+          ACC=$(jq -r '.inputs.accounts // ""' "$GITHUB_EVENT_PATH" 2>/dev/null || true)
           if [ -n "$ACC" ] && [ "$ACC" != "null" ]; then
-            echo "::add-mask::$ACC"
-            echo "$ACC" | jq -r '.[]?.access_token? // empty' | while read -r t; do
-              [ -n "$t" ] && echo "::add-mask::$t"
+            echo "::add-mask::$ACC" || true
+            for t in $(echo "$ACC" | jq -r '.[]?.access_token? // empty' 2>/dev/null || true); do
+              echo "::add-mask::$t" || true
             done
-            echo "$ACC" | jq -r '.[]?.session? // empty' | while read -r s; do
-              [ -n "$s" ] && echo "::add-mask::$s"
+            for s in $(echo "$ACC" | jq -r '.[]?.session? // empty' 2>/dev/null || true); do
+              echo "::add-mask::$s" || true
             done
           fi
 
