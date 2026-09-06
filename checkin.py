@@ -8,6 +8,7 @@ NewAPI 自动签到脚本
 import os
 import sys
 import json
+import time
 import requests
 from datetime import datetime
 from typing import Optional
@@ -70,15 +71,17 @@ class NewAPICheckin:
         return '****'
 
     def __init__(self, base_url: str, session_cookie: str, user_id: str = None, cf_clearance: str = None,
-                 login_username: str = None, login_password: str = None):
+                 login_username: str = None, login_password: str = None, access_token: str = None):
         self.base_url = base_url.rstrip('/')
         self.session_cookie = session_cookie
         self.original_cf_clearance = cf_clearance
         self.cf_bypassed = False
         self.login_username = login_username
         self.login_password = login_password
+        self.access_token = access_token
         self.session = requests.Session()
-        self.session.cookies.set('session', session_cookie)
+        if session_cookie:
+            self.session.cookies.set('session', session_cookie)
 
         if cf_clearance:
             self.session.cookies.set('cf_clearance', cf_clearance)
@@ -90,6 +93,10 @@ class NewAPICheckin:
             'Pragma': 'no-cache',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         })
+
+        # new-api 支持系统访问令牌认证（Authorization 头），不依赖 session cookie
+        if access_token:
+            self.session.headers.update({'Authorization': access_token})
 
         self.user_id = user_id
         if user_id:
@@ -343,6 +350,14 @@ class NewAPICheckin:
                     if already_checked_in:
                         result['success'] = True
                         result['message'] = message
+                    elif 'pow' in message.lower():
+                        # 站点开启 PoW 工作量证明，本地直接解算后重签
+                        print(f'[PoW] 站点要求工作量证明: {message}')
+                        return self._checkin_with_pow(result)
+                    elif 'turnstile' in message.lower():
+                        # 站点开启 Turnstile 人机验证，走真实浏览器解验证后重签
+                        print(f'[Turnstile] 站点要求人机验证: {message}')
+                        return self._turnstile_checkin(result)
                     else:
                         result['message'] = message
             else:
@@ -354,6 +369,100 @@ class NewAPICheckin:
             result['message'] = f'网络请求失败: {e}'
         except Exception as e:
             result['message'] = f'未知错误: {e}'
+
+        return result
+
+    @staticmethod
+    def _solve_pow(prefix: str, difficulty: int) -> str:
+        """计算 PoW nonce：SHA-256(prefix + nonce) 的前 difficulty 个比特全为 0"""
+        import hashlib
+        counter = 0
+        full, rem = divmod(difficulty, 8)
+        mask = ((0xFF << (8 - rem)) & 0xFF) if rem else 0
+        prefix_bytes = prefix.encode()
+        while True:
+            nonce = f'{counter:08x}'
+            digest = hashlib.sha256(prefix_bytes + nonce.encode()).digest()
+            if all(b == 0 for b in digest[:full]):
+                if rem == 0 or full >= len(digest) or (digest[full] & mask) == 0:
+                    return nonce
+            counter += 1
+            if counter > 0xffffffff:
+                raise RuntimeError('PoW 超过最大尝试次数')
+
+    def _checkin_with_pow(self, result: dict) -> dict:
+        """PoW 工作量证明签到（new-api 新版防滥用机制，pow_mode=replace 时替代 Turnstile）"""
+        try:
+            r = self.session.get(f'{self.base_url}/api/user/pow/challenge',
+                                 params={'action': 'checkin'}, timeout=30)
+            data = r.json()
+            if not data.get('success'):
+                result['message'] = f"获取 PoW 挑战失败: {data.get('message', '未知错误')}"
+                return result
+            ch = data['data']
+            difficulty = int(ch['difficulty'])
+            print(f'[PoW] 解算挑战 (difficulty={difficulty})...')
+            nonce = self._solve_pow(ch['prefix'], difficulty)
+            print(f'[PoW] 解算完成: nonce={nonce}')
+
+            resp = self.session.post(
+                f'{self.base_url}/api/user/checkin',
+                params={'pow_challenge': ch['challenge_id'], 'pow_nonce': nonce},
+                timeout=30)
+            data = resp.json()
+            message = data.get('message', '签到失败')
+            already_keywords = ['已签到', '已经签到', 'already', '重复签到']
+            if data.get('success') or any(k in message for k in already_keywords):
+                result['success'] = True
+                result['message'] = f'{message} (PoW)'
+                cd = data.get('data', {})
+                if isinstance(cd, dict):
+                    result['checkin_date'] = cd.get('checkin_date')
+                    result['quota_awarded'] = cd.get('quota_awarded')
+            else:
+                result['message'] = f'PoW 签到失败: {message}'
+        except Exception as e:
+            result['message'] = f'PoW 签到异常: {e}'
+        return result
+
+    def _turnstile_checkin(self, result: dict) -> dict:
+        """
+        Turnstile 人机验证回退流程
+
+        站点开启 Turnstile 校验时（/api/user/checkin 返回「Turnstile token 为空」），
+        用真实 Chrome 渲染验证组件并自动点击，在站点页面内携带 token 签到。
+        浏览器内完成全部请求，requests 是否被 CF 拦均可（本地 / GitHub Actions 通吃）。
+        """
+        try:
+            from turnstile_solver import solve_and_checkin
+        except ImportError:
+            result['message'] = '站点要求 Turnstile 验证但缺少依赖 (playwright + Chrome)'
+            return result
+
+        headers = {}
+        if self.access_token:
+            headers['Authorization'] = self.access_token
+        if self.user_id:
+            headers['New-Api-User'] = str(self.user_id)
+
+        print('[Turnstile] 启动真实浏览器解验证（会弹出 Chrome 窗口）...')
+        resp_data = solve_and_checkin(self.base_url, auth_headers=headers)
+
+        if not resp_data:
+            result['message'] = 'Turnstile 验证失败: 未能获取 token 或签到请求失败'
+            return result
+
+        message = resp_data.get('message', '签到失败')
+        already_keywords = ['已签到', '已经签到', 'already', '重复签到']
+        if resp_data.get('success') or any(k in message for k in already_keywords):
+            result['success'] = True
+            result['message'] = f'{message} (Turnstile)'
+            checkin_data = resp_data.get('data', {})
+            if isinstance(checkin_data, dict):
+                result['checkin_date'] = checkin_data.get('checkin_date')
+                result['quota_awarded'] = checkin_data.get('quota_awarded')
+        else:
+            result['message'] = f'Turnstile 验证后签到失败: {message}'
 
         return result
 
@@ -375,7 +484,7 @@ class NewAPICheckin:
             result['message'] = 'Cloudflare 拦截: 需安装 Playwright 才能自动绕过 (pip install playwright && playwright install chromium)'
             return result
 
-        bypasser = CloudflareBypasser(self.base_url, self.session_cookie, self.user_id)
+        bypasser = CloudflareBypasser(self.base_url, self.session_cookie, self.user_id, self.access_token)
 
         if not bypasser.is_available():
             result['message'] = 'Cloudflare 拦截: Playwright 未正确安装'
@@ -389,6 +498,15 @@ class NewAPICheckin:
             return result
 
         self.cf_bypassed = True
+
+        # CF 绕过后 POST 仍被拦截（要求 Turnstile / CF 挑战 HTML）→ 走真实浏览器求解器
+        # 注意：必须放在 error 分支之前，否则拦截类 error 直接返回、回退永远不触发
+        bypass_combined = (str(browser_result.get('message', '') or '') + ' ' +
+                           str(browser_result.get('error', '') or '')).lower()
+        if ('turnstile' in bypass_combined or 'response is not json' in bypass_combined
+                or 'just a moment' in bypass_combined):
+            print('[CF] 绕过后 POST 仍被 CF 拦截或要求 Turnstile，切换真实浏览器求解器...')
+            return self._turnstile_checkin(result)
 
         if browser_result.get('error'):
             result['message'] = f'CF 绕过后签到失败: {browser_result["error"]}'
@@ -441,9 +559,9 @@ def parse_accounts(accounts_str: str) -> list:
     解析账号配置
 
     支持格式:
-    1. 单账号: BASE_URL#SESSION_COOKIE
+    1. 单账号: BASE_URL#SESSION_COOKIE 或 BASE_URL#SESSION_COOKIE#ACCESS_TOKEN
     2. 多账号: BASE_URL1#SESSION1,BASE_URL2#SESSION2
-    3. JSON格式: [{"url": "...", "session": "..."}]
+    3. JSON格式: [{"url": "...", "session": "...", "access_token": "..."}]
     """
     accounts = []
 
@@ -472,21 +590,29 @@ def parse_accounts(accounts_str: str) -> list:
                         account['login_username'] = item['login_username']
                     if 'login_password' in item:
                         account['login_password'] = item['login_password']
+                    # 如果提供了系统访问令牌，添加到账号信息中
+                    if 'access_token' in item:
+                        account['access_token'] = item['access_token']
                     accounts.append(account)
             return accounts
     except json.JSONDecodeError:
         pass
 
-    # 简单格式: URL#SESSION,URL#SESSION
+    # 简单格式: URL#SESSION 或 URL#SESSION#ACCESS_TOKEN，多账号用逗号分隔
     for part in accounts_str.split(','):
         part = part.strip()
         if '#' in part:
-            url, session = part.split('#', 1)
+            fields = part.split('#')
+            url = fields[0].strip()
+            session = fields[1].strip() if len(fields) > 1 else ''
+            access_token = fields[2].strip() if len(fields) > 2 else ''
             accounts.append({
-                'url': url.strip(),
-                'session': session.strip(),
+                'url': url,
+                'session': session,
                 'name': ''
             })
+            if access_token:
+                accounts[-1]['access_token'] = access_token
 
     return accounts
 
@@ -670,6 +796,7 @@ def main():
         cf_clearance = account.get('cf_clearance')
         login_username = account.get('login_username')
         login_password = account.get('login_password')
+        access_token = account.get('access_token')
         name = account.get('name') or f'账号{i}'
 
         print(f'[{i}/{len(accounts)}] {name}')
@@ -677,7 +804,7 @@ def main():
         if user_id:
             print(f'  用户ID: {NewAPICheckin._mask_user_id(user_id)}')
 
-        client = NewAPICheckin(url, session_cookie, user_id, cf_clearance, login_username, login_password)
+        client = NewAPICheckin(url, session_cookie, user_id, cf_clearance, login_username, login_password, access_token)
 
         # 获取用户信息（可能触发自动登录）
         user_info = client.get_user_info()

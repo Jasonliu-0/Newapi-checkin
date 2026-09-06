@@ -438,7 +438,7 @@
 
         .account-fields {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
         }
 
@@ -882,7 +882,13 @@
 
             .account-item { padding: 12px; }
 
-            .back-link { display: none; }
+            .back-link {
+                display: flex;
+                top: 14px;
+                left: 14px;
+                padding: 6px 12px;
+                font-size: 13px;
+            }
         }
         /* ─── CORS Proxy Picker ─────────────────────────────────── */
 
@@ -1089,22 +1095,2846 @@
             to { transform: scale(1); opacity: 1; }
         }
 
+
+        /* =======================================================
+           浅色主题覆盖层（Light Theme Override）
+           ======================================================= */
+
+        body {
+            background: #eef2f7;
+        }
+
+        body::before {
+            background: radial-gradient(circle at 20% 30%, rgba(37, 99, 235, 0.08) 0%, transparent 45%),
+                        radial-gradient(circle at 80% 70%, rgba(14, 165, 233, 0.07) 0%, transparent 45%);
+            animation: none;
+        }
+
+        .container {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.1), 0 2px 8px rgba(15, 23, 42, 0.04);
+            backdrop-filter: none;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e40af 55%, #2563eb 100%);
+        }
+
+        .header::after {
+            background: linear-gradient(to top, rgba(238, 242, 247, 0.18), transparent);
+        }
+
+        .content {
+            color: #334155;
+        }
+
+        .notice {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+
+        .cors-notice {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+        }
+
+        .cors-notice a {
+            color: #1d4ed8;
+        }
+
+        .cors-notice a:hover {
+            color: #2563eb;
+        }
+
+        .cors-proxy-section {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+        }
+
+        .cors-proxy-section .cors-proxy-toggle {
+            color: #475569;
+        }
+
+        .cors-proxy-section .cors-proxy-warning {
+            color: #b91c1c;
+        }
+
+        .cors-proxy-picker-btn {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+
+        .cors-proxy-picker-btn:hover {
+            border-color: #cbd5e1;
+            background: #f8fafc;
+        }
+
+        .cors-proxy-custom-name {
+            color: #64748b;
+        }
+
+        .site-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+        }
+
+        .site-card:hover {
+            border-color: #93c5fd;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);
+        }
+
+        .site-card::before {
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(37, 99, 235, 0.05) 0%, transparent 60%);
+        }
+
+        .site-header {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .site-title {
+            color: #1d4ed8;
+        }
+
+        .site-title::before {
+            background: #2563eb;
+        }
+
+        .accounts-divider {
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .accounts-label {
+            color: #64748b;
+        }
+
+        .form-group label {
+            color: #334155;
+        }
+
+        .form-group label .required {
+            color: #dc2626;
+        }
+
+        .form-group input {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+
+        .form-group input::placeholder {
+            color: #94a3b8;
+        }
+
+        .form-group input:hover {
+            border-color: #cbd5e1;
+        }
+
+        .form-group input:focus {
+            border-color: #2563eb;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .form-group small {
+            color: #94a3b8;
+        }
+
+        .form-group input[id*="acc-access-token"] {
+            border-color: rgba(37, 99, 235, 0.4);
+            background: #eff6ff;
+        }
+
+        .form-group input[id*="acc-access-token"]:hover {
+            border-color: rgba(37, 99, 235, 0.6);
+        }
+
+        .form-group input[id*="acc-access-token"]:focus {
+            border-color: #2563eb;
+            background: #dbeafe;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .url-jump-btn {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #2563eb;
+        }
+
+        .url-jump-btn:hover {
+            background: #dbeafe;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+        }
+
+        .account-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .account-item:hover {
+            border-color: #bfdbfe;
+            background: #f0f7ff;
+        }
+
+        .account-item-title {
+            color: #1d4ed8;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            padding: 4px 14px;
+            border-radius: 999px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
+        }
+
+        .btn-danger {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+
+        .btn-danger:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #1e293b;
+        }
+
+        .cloud-section {
+            background: #ffffff;
+            border: 1px solid #a7f3d0;
+        }
+
+        .cloud-section h3 {
+            color: #059669;
+        }
+
+        .cloud-section h3::before {
+            background: #059669;
+        }
+
+        .cloud-preset-btn {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+        }
+
+        .cloud-preset-btn:hover {
+            background: #ecfdf5;
+            border-color: #a7f3d0;
+            color: #059669;
+        }
+
+        .cloud-preset-btn.active {
+            background: #ecfdf5;
+            border-color: #6ee7b7;
+            color: #047857;
+        }
+
+        .cloud-status.success {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #047857;
+        }
+
+        .cloud-status.error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+        }
+
+        .cloud-status.info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1d4ed8;
+        }
+
+        .import-section {
+            background: #ffffff;
+            border: 1px solid #bfdbfe;
+        }
+
+        .import-section h3 {
+            color: #1d4ed8;
+        }
+
+        .import-section h3::before {
+            background: #2563eb;
+        }
+
+        .import-textarea {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+
+        .import-textarea:focus {
+            border-color: #2563eb;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .result-section {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 2px solid #2563eb;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+        }
+
+        .result-section h3 {
+            color: #1e293b;
+        }
+
+        .code-block {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            box-shadow: none;
+            font-family: 'Cascadia Code', 'JetBrains Mono', Consolas, 'Courier New', monospace;
+            line-height: 1.7;
+        }
+
+        .copy-btn:hover {
+            background: rgba(37, 99, 235, 0.15);
+            border-color: rgba(37, 99, 235, 0.3);
+            color: #1d4ed8;
+        }
+
+        .tabs {
+            background: #f1f5f9;
+        }
+
+        .tab {
+            color: #64748b;
+        }
+
+        .tab:hover {
+            color: #1e293b;
+            background: #e2e8f0;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #2563eb, #0ea5e9);
+            color: #ffffff;
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .tips {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 3px solid #f59e0b;
+        }
+
+        .tips h4 {
+            color: #92400e;
+        }
+
+        .tips ul {
+            color: #57534e;
+        }
+
+        .tips code {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .footer {
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            color: #94a3b8;
+        }
+
+        .footer a {
+            color: #2563eb;
+        }
+
+        .footer a:hover {
+            color: #1d4ed8;
+        }
+
+        ::selection {
+            background: rgba(37, 99, 235, 0.22);
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(15, 23, 42, 0.18);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(15, 23, 42, 0.32);
+        }
+
+        .form-group input:hover {
+            border-color: #cbd5e1;
+        }
+
+        /* =======================================================
+           液态玻璃主题（Liquid Glass，iOS 26 / macOS Tahoe 风格）
+           ======================================================= */
+
+        body {
+            background: linear-gradient(160deg, #dbeafe 0%, #e0f2fe 35%, #cffafe 65%, #e0e7ff 100%);
+            background-attachment: fixed;
+        }
+
+        body::before {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background:
+                radial-gradient(850px circle at 8% 12%, rgba(14, 165, 233, 0.62) 0%, transparent 60%),
+                radial-gradient(950px circle at 92% 6%, rgba(37, 99, 235, 0.55) 0%, transparent 58%),
+                radial-gradient(1050px circle at 80% 74%, rgba(6, 182, 212, 0.55) 0%, transparent 62%),
+                radial-gradient(800px circle at 12% 82%, rgba(59, 130, 246, 0.48) 0%, transparent 60%),
+                radial-gradient(650px circle at 48% 42%, rgba(125, 211, 252, 0.4) 0%, transparent 65%),
+                radial-gradient(500px circle at 68% 30%, rgba(45, 212, 191, 0.3) 0%, transparent 62%);
+            animation: bgFloat 24s ease-in-out infinite;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.32);
+            backdrop-filter: blur(52px) saturate(200%);
+            -webkit-backdrop-filter: blur(52px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            box-shadow:
+                0 24px 70px rgba(15, 23, 42, 0.16),
+                0 2px 8px rgba(15, 23, 42, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.35);
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.68) 0%, rgba(14, 165, 233, 0.55) 100%);
+            backdrop-filter: blur(28px) saturate(160%);
+            -webkit-backdrop-filter: blur(28px) saturate(160%);
+        }
+
+        .header::after {
+            background: linear-gradient(to top, rgba(219, 234, 254, 0.25), transparent);
+        }
+
+        .header h1 {
+            text-shadow: 0 2px 24px rgba(255, 255, 255, 0.35);
+        }
+
+        .header .header-badge {
+            background: rgba(255, 255, 255, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .back-link {
+            background: rgba(255, 255, 255, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .site-card,
+        .cloud-section,
+        .import-section,
+        .result-section {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(32px) saturate(180%);
+            -webkit-backdrop-filter: blur(32px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            box-shadow:
+                0 8px 32px rgba(15, 23, 42, 0.08),
+                0 0 0 1px rgba(255, 255, 255, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 1),
+                inset 0 2px 6px rgba(255, 255, 255, 0.35),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .site-card:hover {
+            border-color: rgba(255, 255, 255, 0.9);
+            box-shadow:
+                0 14px 44px rgba(37, 99, 235, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.35);
+        }
+
+        .site-card::before {
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.35) 0%, transparent 60%);
+        }
+
+        .site-header {
+            background: rgba(255, 255, 255, 0.35);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .site-title {
+            color: #1e40af;
+        }
+
+        .site-title::before {
+            background: linear-gradient(180deg, #38bdf8, #2563eb);
+        }
+
+        .accounts-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .accounts-label {
+            color: #475569;
+        }
+
+        .form-group label {
+            color: #1e293b;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .form-group input {
+            background: rgba(255, 255, 255, 0.42);
+            backdrop-filter: blur(20px) saturate(170%);
+            -webkit-backdrop-filter: blur(20px) saturate(170%);
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            color: #0f172a;
+            box-shadow:
+                inset 0 1px 2px rgba(15, 23, 42, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 1),
+                inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .form-group input::placeholder {
+            color: #94a3b8;
+        }
+
+        .form-group input:hover {
+            border-color: rgba(255, 255, 255, 1);
+            background: rgba(255, 255, 255, 0.68);
+        }
+
+        .form-group input:focus {
+            border-color: rgba(255, 255, 255, 1);
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow:
+                0 0 0 4px rgba(56, 189, 248, 0.25),
+                0 4px 16px rgba(37, 99, 235, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
+
+        .form-group small {
+            color: #475569;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        .form-group input[id*="acc-access-token"] {
+            border-color: rgba(56, 189, 248, 0.55);
+            background: rgba(224, 242, 254, 0.55);
+        }
+
+        .form-group input[id*="acc-access-token"]:hover {
+            border-color: rgba(56, 189, 248, 0.85);
+            background: rgba(224, 242, 254, 0.75);
+        }
+
+        .form-group input[id*="acc-access-token"]:focus {
+            border-color: rgba(255, 255, 255, 1);
+            background: rgba(224, 242, 254, 0.85);
+        }
+
+        .url-jump-btn {
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            color: #1e40af;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .account-item {
+            background: rgba(255, 255, 255, 0.26);
+            backdrop-filter: blur(24px) saturate(170%);
+            -webkit-backdrop-filter: blur(24px) saturate(170%);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.95),
+                inset 0 2px 5px rgba(255, 255, 255, 0.3),
+                0 2px 10px rgba(15, 23, 42, 0.04);
+        }
+
+        .account-item:hover {
+            border-color: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.55);
+        }
+
+        .account-item-title {
+            color: #1e40af;
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .btn {
+            border-radius: 999px;
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.97);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.9) 0%, rgba(14, 165, 233, 0.9) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow:
+                0 8px 24px rgba(37, 99, 235, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.55),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-primary:hover {
+            box-shadow:
+                0 12px 34px rgba(37, 99, 235, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.9) 0%, rgba(16, 185, 129, 0.9) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow:
+                0 8px 24px rgba(5, 150, 105, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.55);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(16px) saturate(150%);
+            -webkit-backdrop-filter: blur(16px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            color: #1e293b;
+            box-shadow:
+                0 2px 10px rgba(15, 23, 42, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.85);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.75);
+            border-color: rgba(255, 255, 255, 1);
+            color: #0f172a;
+        }
+
+        .btn-danger {
+            background: rgba(254, 226, 226, 0.6);
+            border: 1px solid rgba(254, 202, 202, 0.8);
+            color: #b91c1c;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .btn-danger:hover {
+            background: rgba(254, 202, 202, 0.85);
+            border-color: rgba(248, 113, 113, 0.7);
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #e2e8f0;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .tips {
+            background: rgba(255, 251, 235, 0.55);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border: 1px solid rgba(254, 243, 199, 0.9);
+            border-left: 3px solid rgba(245, 158, 11, 0.75);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .tips h4 {
+            color: #92400e;
+        }
+
+        .tips ul {
+            color: #57534e;
+        }
+
+        .tips code {
+            background: rgba(255, 255, 255, 0.65);
+            color: #1d4ed8;
+        }
+
+        .notice {
+            background: rgba(219, 234, 254, 0.5);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border: 1px solid rgba(191, 219, 254, 0.8);
+            color: #1e40af;
+        }
+
+        .cors-notice {
+            background: rgba(254, 249, 195, 0.5);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border: 1px solid rgba(253, 230, 138, 0.85);
+            color: #92400e;
+        }
+
+        .cors-proxy-section {
+            background: rgba(254, 249, 195, 0.45);
+            border: 1px solid rgba(253, 230, 138, 0.7);
+        }
+
+        .cors-proxy-picker-btn {
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            color: #0f172a;
+        }
+
+        .code-block {
+            background: rgba(8, 20, 45, 0.78);
+            backdrop-filter: blur(24px) saturate(140%);
+            -webkit-backdrop-filter: blur(24px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow:
+                0 8px 32px rgba(15, 23, 42, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .result-section {
+            border-top: 2px solid rgba(56, 189, 248, 0.6);
+        }
+
+        .result-section h3 {
+            color: #0f172a;
+        }
+
+        .tabs {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(16px) saturate(150%);
+            -webkit-backdrop-filter: blur(16px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .tab {
+            color: #475569;
+            border-radius: 999px;
+        }
+
+        .tab:hover {
+            color: #0f172a;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .tab.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #1e40af;
+            box-shadow:
+                0 2px 10px rgba(15, 23, 42, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
+
+        .cloud-preset-btn {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            color: #475569;
+            border-radius: 999px;
+        }
+
+        .cloud-preset-btn:hover {
+            background: rgba(236, 253, 245, 0.7);
+            border-color: rgba(110, 231, 183, 0.7);
+            color: #047857;
+        }
+
+        .cloud-preset-btn.active {
+            background: rgba(236, 253, 245, 0.85);
+            border-color: rgba(110, 231, 183, 0.9);
+            color: #047857;
+        }
+
+        .cloud-status.success {
+            background: rgba(236, 253, 245, 0.65);
+            border: 1px solid rgba(110, 231, 183, 0.8);
+            color: #047857;
+        }
+
+        .cloud-status.error {
+            background: rgba(254, 242, 242, 0.65);
+            border: 1px solid rgba(254, 202, 202, 0.85);
+            color: #b91c1c;
+        }
+
+        .cloud-status.info {
+            background: rgba(219, 234, 254, 0.65);
+            border: 1px solid rgba(191, 219, 254, 0.9);
+            color: #1e40af;
+        }
+
+        .import-textarea {
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            color: #0f172a;
+        }
+
+        .import-textarea:focus {
+            border-color: rgba(255, 255, 255, 1);
+            background: rgba(255, 255, 255, 0.78);
+        }
+
+        .footer {
+            background: rgba(255, 255, 255, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.6);
+            color: #64748b;
+        }
+
+        .footer a {
+            color: #1e40af;
+        }
+
+        @media (max-width: 768px) {
+            body { background-attachment: scroll; }
+        }
+
+        /* =======================================================
+           深色液态玻璃（Dark Liquid Glass）
+           深夜壁纸 + 发光极光色斑 + 深色玻璃层 + 高亮边缘
+           ======================================================= */
+
+        html[data-theme="dark"] body {
+            background: linear-gradient(170deg, #030814 0%, #061021 40%, #04101f 70%, #020a18 100%);
+            background-attachment: fixed;
+        }
+
+        html[data-theme="dark"] body::before {
+            background:
+                radial-gradient(900px circle at 10% 10%, rgba(14, 165, 233, 0.4) 0%, transparent 58%),
+                radial-gradient(1000px circle at 92% 8%, rgba(37, 99, 235, 0.38) 0%, transparent 58%),
+                radial-gradient(1100px circle at 80% 78%, rgba(6, 182, 212, 0.4) 0%, transparent 62%),
+                radial-gradient(850px circle at 12% 85%, rgba(99, 102, 241, 0.3) 0%, transparent 60%),
+                radial-gradient(700px circle at 48% 45%, rgba(13, 148, 136, 0.28) 0%, transparent 65%),
+                radial-gradient(550px circle at 65% 25%, rgba(56, 189, 248, 0.22) 0%, transparent 60%);
+        }
+
+        html[data-theme="dark"] .container {
+            background: rgba(8, 16, 34, 0.45);
+            backdrop-filter: blur(56px) saturate(190%);
+            -webkit-backdrop-filter: blur(56px) saturate(190%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow:
+                0 30px 90px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.16),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        html[data-theme="dark"] .content {
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .header {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.42) 0%, rgba(8, 145, 178, 0.32) 100%);
+            backdrop-filter: blur(32px) saturate(170%);
+            -webkit-backdrop-filter: blur(32px) saturate(170%);
+        }
+
+        html[data-theme="dark"] .header .header-badge, html[data-theme="dark"] .back-link {
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+        }
+
+        html[data-theme="dark"] .notice {
+            background: rgba(37, 99, 235, 0.14);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            color: #93c5fd;
+        }
+
+        html[data-theme="dark"] .cors-notice {
+            background: rgba(245, 158, 11, 0.09);
+            border: 1px solid rgba(245, 158, 11, 0.28);
+            color: #fcd34d;
+        }
+
+        html[data-theme="dark"] .cors-notice a {
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .cors-notice a:hover {
+            color: #bae6fd;
+        }
+
+        html[data-theme="dark"] .cors-proxy-section {
+            background: rgba(245, 158, 11, 0.06);
+            border: 1px solid rgba(245, 158, 11, 0.22);
+        }
+
+        html[data-theme="dark"] .cors-proxy-section .cors-proxy-toggle {
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .cors-proxy-section .cors-proxy-warning {
+            color: #f87171;
+        }
+
+        html[data-theme="dark"] .cors-proxy-picker-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #e2e8f0;
+        }
+
+        html[data-theme="dark"] .cors-proxy-picker-btn:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        html[data-theme="dark"] .cors-proxy-custom-name {
+            color: #94a3b8;
+        }
+
+        html[data-theme="dark"] .site-card, html[data-theme="dark"] .cloud-section, html[data-theme="dark"] .import-section, html[data-theme="dark"] .result-section {
+            background: rgba(12, 22, 44, 0.38);
+            backdrop-filter: blur(36px) saturate(180%);
+            -webkit-backdrop-filter: blur(36px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow:
+                0 10px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14),
+                inset 0 2px 8px rgba(255, 255, 255, 0.04),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        html[data-theme="dark"] .site-card:hover {
+            border-color: rgba(125, 211, 252, 0.4);
+            box-shadow:
+                0 16px 50px rgba(14, 165, 233, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                inset 0 2px 8px rgba(255, 255, 255, 0.05);
+        }
+
+        html[data-theme="dark"] .site-card::before {
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(125, 211, 252, 0.1) 0%, transparent 60%);
+        }
+
+        html[data-theme="dark"] .site-header {
+            background: rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme="dark"] .site-title {
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .site-title::before {
+            background: linear-gradient(180deg, #38bdf8, #2563eb);
+        }
+
+        html[data-theme="dark"] .accounts-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme="dark"] .accounts-label {
+            color: #94a3b8;
+        }
+
+        html[data-theme="dark"] .form-group label {
+            color: #cbd5e1;
+            text-shadow: none;
+        }
+
+        html[data-theme="dark"] .form-group label .required {
+            color: #f87171;
+        }
+
+        html[data-theme="dark"] .form-group input {
+            background: rgba(4, 10, 24, 0.45);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #f1f5f9;
+            box-shadow:
+                inset 0 1px 2px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme="dark"] .form-group input::placeholder {
+            color: #5b6b84;
+        }
+
+        html[data-theme="dark"] .form-group input:hover {
+            border-color: rgba(255, 255, 255, 0.28);
+            background: rgba(4, 10, 24, 0.55);
+        }
+
+        html[data-theme="dark"] .form-group input:focus {
+            border-color: rgba(125, 211, 252, 0.75);
+            background: rgba(4, 10, 24, 0.6);
+            box-shadow:
+                0 0 0 4px rgba(56, 189, 248, 0.18),
+                0 4px 20px rgba(14, 165, 233, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        }
+
+        html[data-theme="dark"] .form-group small {
+            color: #94a3b8;
+            text-shadow: none;
+        }
+
+        html[data-theme="dark"] .form-group input[id*="acc-access-token"] {
+            border-color: rgba(56, 189, 248, 0.45);
+            background: rgba(14, 116, 180, 0.14);
+        }
+
+        html[data-theme="dark"] .form-group input[id*="acc-access-token"]:hover {
+            border-color: rgba(56, 189, 248, 0.7);
+            background: rgba(14, 116, 180, 0.22);
+        }
+
+        html[data-theme="dark"] .form-group input[id*="acc-access-token"]:focus {
+            border-color: rgba(125, 211, 252, 0.85);
+            background: rgba(14, 116, 180, 0.26);
+            box-shadow:
+                0 0 0 4px rgba(56, 189, 248, 0.22),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        html[data-theme="dark"] .url-jump-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .url-jump-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: rgba(125, 211, 252, 0.5);
+            color: #bae6fd;
+        }
+
+        html[data-theme="dark"] .account-item {
+            background: rgba(6, 13, 28, 0.32);
+            backdrop-filter: blur(28px) saturate(170%);
+            -webkit-backdrop-filter: blur(28px) saturate(170%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 2px 5px rgba(255, 255, 255, 0.03),
+                0 2px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        html[data-theme="dark"] .account-item:hover {
+            border-color: rgba(125, 211, 252, 0.38);
+            background: rgba(10, 20, 42, 0.42);
+        }
+
+        html[data-theme="dark"] .account-item-title {
+            color: #7dd3fc;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        html[data-theme="dark"] .btn-primary {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.78) 0%, rgba(14, 165, 233, 0.78) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            box-shadow:
+                0 8px 28px rgba(14, 165, 233, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        html[data-theme="dark"] .btn-primary:hover {
+            box-shadow:
+                0 12px 40px rgba(14, 165, 233, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.55);
+        }
+
+        html[data-theme="dark"] .btn-success {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.78) 0%, rgba(16, 185, 129, 0.78) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            box-shadow:
+                0 8px 28px rgba(16, 185, 129, 0.32),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        html[data-theme="dark"] .btn-secondary {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #e2e8f0;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.14),
+                0 2px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        html[data-theme="dark"] .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.32);
+            color: #ffffff;
+        }
+
+        html[data-theme="dark"] .btn-danger {
+            background: rgba(248, 113, 113, 0.12);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            color: #fca5a5;
+        }
+
+        html[data-theme="dark"] .btn-danger:hover {
+            background: rgba(248, 113, 113, 0.24);
+            border-color: rgba(248, 113, 113, 0.55);
+        }
+
+        html[data-theme="dark"] .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .copy-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: rgba(125, 211, 252, 0.5);
+            color: #bae6fd;
+        }
+
+        html[data-theme="dark"] .tips {
+            background: rgba(245, 158, 11, 0.07);
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+            border: 1px solid rgba(245, 158, 11, 0.26);
+            border-left: 3px solid rgba(245, 158, 11, 0.65);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme="dark"] .tips h4 {
+            color: #fbbf24;
+        }
+
+        html[data-theme="dark"] .tips ul {
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .tips code {
+            background: rgba(56, 189, 248, 0.12);
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .result-section {
+            border-top: 2px solid rgba(56, 189, 248, 0.55);
+        }
+
+        html[data-theme="dark"] .result-section h3 {
+            color: #f1f5f9;
+        }
+
+        html[data-theme="dark"] .code-block {
+            background: rgba(2, 8, 22, 0.62);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow:
+                0 10px 40px rgba(0, 0, 0, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        html[data-theme="dark"] .tabs {
+            background: rgba(4, 10, 24, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        }
+
+        html[data-theme="dark"] .tab {
+            color: #94a3b8;
+        }
+
+        html[data-theme="dark"] .tab:hover {
+            color: #e2e8f0;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        html[data-theme="dark"] .tab.active {
+            background: rgba(255, 255, 255, 0.14);
+            color: #ffffff;
+            box-shadow:
+                0 2px 10px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        html[data-theme="dark"] .cloud-section {
+            background: rgba(6, 40, 32, 0.32);
+            border: 1px solid rgba(16, 185, 129, 0.22);
+        }
+
+        html[data-theme="dark"] .cloud-section h3 {
+            color: #34d399;
+        }
+
+        html[data-theme="dark"] .cloud-section h3::before {
+            background: #10b981;
+        }
+
+        html[data-theme="dark"] .cloud-preset-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .cloud-preset-btn:hover {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(52, 211, 153, 0.4);
+            color: #6ee7b7;
+        }
+
+        html[data-theme="dark"] .cloud-preset-btn.active {
+            background: rgba(16, 185, 129, 0.18);
+            border-color: rgba(52, 211, 153, 0.55);
+            color: #6ee7b7;
+        }
+
+        html[data-theme="dark"] .cloud-status.success {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.35);
+            color: #6ee7b7;
+        }
+
+        html[data-theme="dark"] .cloud-status.error {
+            background: rgba(248, 113, 113, 0.12);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            color: #fca5a5;
+        }
+
+        html[data-theme="dark"] .cloud-status.info {
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(125, 211, 252, 0.35);
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .import-section {
+            background: rgba(12, 22, 44, 0.38);
+            border: 1px solid rgba(125, 211, 252, 0.28);
+        }
+
+        html[data-theme="dark"] .import-section h3 {
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .import-section h3::before {
+            background: #38bdf8;
+        }
+
+        html[data-theme="dark"] .import-textarea {
+            background: rgba(4, 10, 24, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #f1f5f9;
+        }
+
+        html[data-theme="dark"] .import-textarea:focus {
+            border-color: rgba(125, 211, 252, 0.7);
+            background: rgba(4, 10, 24, 0.58);
+        }
+
+        html[data-theme="dark"] .footer {
+            background: rgba(2, 8, 22, 0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+        }
+
+        html[data-theme="dark"] .footer a {
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .footer a:hover {
+            color: #bae6fd;
+        }
+
+        html[data-theme="dark"] ::selection {
+            background: rgba(56, 189, 248, 0.32);
+        }
+
+        html[data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.26);
+        }
+
+        /* =======================================================
+           主题切换
+           ======================================================= */
+
+        html { color-scheme: light; }
+
+        html[data-theme="dark"] { color-scheme: dark; }
+
+        .theme-toggle {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            width: 46px;
+            height: 46px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(16px) saturate(170%);
+            -webkit-backdrop-filter: blur(16px) saturate(170%);
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow:
+                0 4px 16px rgba(15, 23, 42, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+            border-color: #ffffff;
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        html[data-theme="dark"] .theme-toggle {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.22);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                0 4px 16px rgba(0, 0, 0, 0.45);
+        }
+
+        .hint-amber { color: #b45309; }
+
+        html[data-theme="dark"] .hint-amber { color: #fbbf24; }
+
+        .btn-cloud { color: #059669; border-color: rgba(5, 150, 105, 0.35); }
+
+        html[data-theme="dark"] .btn-cloud { color: #34d399; border-color: rgba(52, 211, 153, 0.4); }
+
+        .btn-import { color: #2563eb; border-color: rgba(37, 99, 235, 0.35); }
+
+        html[data-theme="dark"] .btn-import { color: #7dd3fc; border-color: rgba(125, 211, 252, 0.4); }
+
+        .btn-clear { color: #dc2626; border-color: rgba(220, 38, 38, 0.35); }
+
+        html[data-theme="dark"] .btn-clear { color: #f87171; border-color: rgba(248, 113, 113, 0.4); }
         </style>
+<script>
+    // 主题切换：localStorage 记忆，两个页面共享
+    (function () {
+        var KEY = 'newapi_theme';
+        function apply(t) {
+            if (t === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            var b = document.getElementById('themeToggle');
+            if (b) { b.textContent = t === 'dark' ? '☀️' : '🌙'; }
+        }
+        apply(localStorage.getItem(KEY));
+        window.toggleTheme = function () {
+            var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            localStorage.setItem(KEY, t);
+            apply(t);
+        };
+    })();
+</script>
 </head>
 <body>
+<button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="切换深色 / 浅色主题">🌙</button>
     <div class="container">
         <div class="header">
             <a href="index.html" class="back-link">← 返回首页</a>
             <h1>🚀 NewAPI 配置生成器</h1>
             <p>轻松生成多账号签到配置，同站点多账号只需填写一次 URL</p>
+            <div class="header-badges">
+                <span class="header-badge">🔐 支持系统访问令牌</span>
+                <span class="header-badge">🛡️ 自动过 Turnstile 人机验证</span>
+                <span class="header-badge">☁️ WebDAV 云端同步</span>
+            </div>
         </div>
+
+        <style>
+            .header .header-badges {
+                position: relative;
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                margin-top: 16px;
+                flex-wrap: wrap;
+            }
+            .header .header-badge {
+                font-size: 12px;
+                padding: 5px 14px;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.22);
+                border: 1px solid rgba(255, 255, 255, 0.45);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            }
+            .header-badges ~ * { position: relative; }
+
+        /* =======================================================
+           浅色主题覆盖层（Light Theme Override）
+           ======================================================= */
+
+        body {
+            background: #eef2f7;
+        }
+
+        body::before {
+            background: radial-gradient(circle at 20% 30%, rgba(37, 99, 235, 0.08) 0%, transparent 45%),
+                        radial-gradient(circle at 80% 70%, rgba(14, 165, 233, 0.07) 0%, transparent 45%);
+            animation: none;
+        }
+
+        .container {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.1), 0 2px 8px rgba(15, 23, 42, 0.04);
+            backdrop-filter: none;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e40af 55%, #2563eb 100%);
+        }
+
+        .header::after {
+            background: linear-gradient(to top, rgba(238, 242, 247, 0.18), transparent);
+        }
+
+        .content {
+            color: #334155;
+        }
+
+        .notice {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+
+        .cors-notice {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+        }
+
+        .cors-notice a {
+            color: #1d4ed8;
+        }
+
+        .cors-notice a:hover {
+            color: #2563eb;
+        }
+
+        .cors-proxy-section {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+        }
+
+        .cors-proxy-section .cors-proxy-toggle {
+            color: #475569;
+        }
+
+        .cors-proxy-section .cors-proxy-warning {
+            color: #b91c1c;
+        }
+
+        .cors-proxy-picker-btn {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+
+        .cors-proxy-picker-btn:hover {
+            border-color: #cbd5e1;
+            background: #f8fafc;
+        }
+
+        .cors-proxy-custom-name {
+            color: #64748b;
+        }
+
+        .site-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+        }
+
+        .site-card:hover {
+            border-color: #93c5fd;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);
+        }
+
+        .site-card::before {
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(37, 99, 235, 0.05) 0%, transparent 60%);
+        }
+
+        .site-header {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .site-title {
+            color: #1d4ed8;
+        }
+
+        .site-title::before {
+            background: #2563eb;
+        }
+
+        .accounts-divider {
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .accounts-label {
+            color: #64748b;
+        }
+
+        .form-group label {
+            color: #334155;
+        }
+
+        .form-group label .required {
+            color: #dc2626;
+        }
+
+        .form-group input {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+
+        .form-group input::placeholder {
+            color: #94a3b8;
+        }
+
+        .form-group input:hover {
+            border-color: #cbd5e1;
+        }
+
+        .form-group input:focus {
+            border-color: #2563eb;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .form-group small {
+            color: #94a3b8;
+        }
+
+        .form-group input[id*="acc-access-token"] {
+            border-color: rgba(37, 99, 235, 0.4);
+            background: #eff6ff;
+        }
+
+        .form-group input[id*="acc-access-token"]:hover {
+            border-color: rgba(37, 99, 235, 0.6);
+        }
+
+        .form-group input[id*="acc-access-token"]:focus {
+            border-color: #2563eb;
+            background: #dbeafe;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .url-jump-btn {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #2563eb;
+        }
+
+        .url-jump-btn:hover {
+            background: #dbeafe;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+        }
+
+        .account-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .account-item:hover {
+            border-color: #bfdbfe;
+            background: #f0f7ff;
+        }
+
+        .account-item-title {
+            color: #1d4ed8;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            padding: 4px 14px;
+            border-radius: 999px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
+        }
+
+        .btn-danger {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+
+        .btn-danger:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #1e293b;
+        }
+
+        .cloud-section {
+            background: #ffffff;
+            border: 1px solid #a7f3d0;
+        }
+
+        .cloud-section h3 {
+            color: #059669;
+        }
+
+        .cloud-section h3::before {
+            background: #059669;
+        }
+
+        .cloud-preset-btn {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+        }
+
+        .cloud-preset-btn:hover {
+            background: #ecfdf5;
+            border-color: #a7f3d0;
+            color: #059669;
+        }
+
+        .cloud-preset-btn.active {
+            background: #ecfdf5;
+            border-color: #6ee7b7;
+            color: #047857;
+        }
+
+        .cloud-status.success {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #047857;
+        }
+
+        .cloud-status.error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+        }
+
+        .cloud-status.info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1d4ed8;
+        }
+
+        .import-section {
+            background: #ffffff;
+            border: 1px solid #bfdbfe;
+        }
+
+        .import-section h3 {
+            color: #1d4ed8;
+        }
+
+        .import-section h3::before {
+            background: #2563eb;
+        }
+
+        .import-textarea {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+
+        .import-textarea:focus {
+            border-color: #2563eb;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .result-section {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 2px solid #2563eb;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+        }
+
+        .result-section h3 {
+            color: #1e293b;
+        }
+
+        .code-block {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            box-shadow: none;
+            font-family: 'Cascadia Code', 'JetBrains Mono', Consolas, 'Courier New', monospace;
+            line-height: 1.7;
+        }
+
+        .copy-btn:hover {
+            background: rgba(37, 99, 235, 0.15);
+            border-color: rgba(37, 99, 235, 0.3);
+            color: #1d4ed8;
+        }
+
+        .tabs {
+            background: #f1f5f9;
+        }
+
+        .tab {
+            color: #64748b;
+        }
+
+        .tab:hover {
+            color: #1e293b;
+            background: #e2e8f0;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #2563eb, #0ea5e9);
+            color: #ffffff;
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .tips {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 3px solid #f59e0b;
+        }
+
+        .tips h4 {
+            color: #92400e;
+        }
+
+        .tips ul {
+            color: #57534e;
+        }
+
+        .tips code {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .footer {
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            color: #94a3b8;
+        }
+
+        .footer a {
+            color: #2563eb;
+        }
+
+        .footer a:hover {
+            color: #1d4ed8;
+        }
+
+        ::selection {
+            background: rgba(37, 99, 235, 0.22);
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(15, 23, 42, 0.18);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(15, 23, 42, 0.32);
+        }
+
+        .form-group input:hover {
+            border-color: #cbd5e1;
+        }
+
+        /* =======================================================
+           液态玻璃主题（Liquid Glass，iOS 26 / macOS Tahoe 风格）
+           ======================================================= */
+
+        body {
+            background: linear-gradient(160deg, #dbeafe 0%, #e0f2fe 35%, #cffafe 65%, #e0e7ff 100%);
+            background-attachment: fixed;
+        }
+
+        body::before {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background:
+                radial-gradient(850px circle at 8% 12%, rgba(14, 165, 233, 0.62) 0%, transparent 60%),
+                radial-gradient(950px circle at 92% 6%, rgba(37, 99, 235, 0.55) 0%, transparent 58%),
+                radial-gradient(1050px circle at 80% 74%, rgba(6, 182, 212, 0.55) 0%, transparent 62%),
+                radial-gradient(800px circle at 12% 82%, rgba(59, 130, 246, 0.48) 0%, transparent 60%),
+                radial-gradient(650px circle at 48% 42%, rgba(125, 211, 252, 0.4) 0%, transparent 65%),
+                radial-gradient(500px circle at 68% 30%, rgba(45, 212, 191, 0.3) 0%, transparent 62%);
+            animation: bgFloat 24s ease-in-out infinite;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.32);
+            backdrop-filter: blur(52px) saturate(200%);
+            -webkit-backdrop-filter: blur(52px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            box-shadow:
+                0 24px 70px rgba(15, 23, 42, 0.16),
+                0 2px 8px rgba(15, 23, 42, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.35);
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.68) 0%, rgba(14, 165, 233, 0.55) 100%);
+            backdrop-filter: blur(28px) saturate(160%);
+            -webkit-backdrop-filter: blur(28px) saturate(160%);
+        }
+
+        .header::after {
+            background: linear-gradient(to top, rgba(219, 234, 254, 0.25), transparent);
+        }
+
+        .header h1 {
+            text-shadow: 0 2px 24px rgba(255, 255, 255, 0.35);
+        }
+
+        .header .header-badge {
+            background: rgba(255, 255, 255, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .back-link {
+            background: rgba(255, 255, 255, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .site-card,
+        .cloud-section,
+        .import-section,
+        .result-section {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(32px) saturate(180%);
+            -webkit-backdrop-filter: blur(32px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            box-shadow:
+                0 8px 32px rgba(15, 23, 42, 0.08),
+                0 0 0 1px rgba(255, 255, 255, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 1),
+                inset 0 2px 6px rgba(255, 255, 255, 0.35),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .site-card:hover {
+            border-color: rgba(255, 255, 255, 0.9);
+            box-shadow:
+                0 14px 44px rgba(37, 99, 235, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.35);
+        }
+
+        .site-card::before {
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.35) 0%, transparent 60%);
+        }
+
+        .site-header {
+            background: rgba(255, 255, 255, 0.35);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .site-title {
+            color: #1e40af;
+        }
+
+        .site-title::before {
+            background: linear-gradient(180deg, #38bdf8, #2563eb);
+        }
+
+        .accounts-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .accounts-label {
+            color: #475569;
+        }
+
+        .form-group label {
+            color: #1e293b;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .form-group input {
+            background: rgba(255, 255, 255, 0.42);
+            backdrop-filter: blur(20px) saturate(170%);
+            -webkit-backdrop-filter: blur(20px) saturate(170%);
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            color: #0f172a;
+            box-shadow:
+                inset 0 1px 2px rgba(15, 23, 42, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 1),
+                inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .form-group input::placeholder {
+            color: #94a3b8;
+        }
+
+        .form-group input:hover {
+            border-color: rgba(255, 255, 255, 1);
+            background: rgba(255, 255, 255, 0.68);
+        }
+
+        .form-group input:focus {
+            border-color: rgba(255, 255, 255, 1);
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow:
+                0 0 0 4px rgba(56, 189, 248, 0.25),
+                0 4px 16px rgba(37, 99, 235, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
+
+        .form-group small {
+            color: #475569;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        .form-group input[id*="acc-access-token"] {
+            border-color: rgba(56, 189, 248, 0.55);
+            background: rgba(224, 242, 254, 0.55);
+        }
+
+        .form-group input[id*="acc-access-token"]:hover {
+            border-color: rgba(56, 189, 248, 0.85);
+            background: rgba(224, 242, 254, 0.75);
+        }
+
+        .form-group input[id*="acc-access-token"]:focus {
+            border-color: rgba(255, 255, 255, 1);
+            background: rgba(224, 242, 254, 0.85);
+        }
+
+        .url-jump-btn {
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            color: #1e40af;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .account-item {
+            background: rgba(255, 255, 255, 0.26);
+            backdrop-filter: blur(24px) saturate(170%);
+            -webkit-backdrop-filter: blur(24px) saturate(170%);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.95),
+                inset 0 2px 5px rgba(255, 255, 255, 0.3),
+                0 2px 10px rgba(15, 23, 42, 0.04);
+        }
+
+        .account-item:hover {
+            border-color: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.55);
+        }
+
+        .account-item-title {
+            color: #1e40af;
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .btn {
+            border-radius: 999px;
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.97);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.9) 0%, rgba(14, 165, 233, 0.9) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow:
+                0 8px 24px rgba(37, 99, 235, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.55),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-primary:hover {
+            box-shadow:
+                0 12px 34px rgba(37, 99, 235, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.9) 0%, rgba(16, 185, 129, 0.9) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow:
+                0 8px 24px rgba(5, 150, 105, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.55);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(16px) saturate(150%);
+            -webkit-backdrop-filter: blur(16px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            color: #1e293b;
+            box-shadow:
+                0 2px 10px rgba(15, 23, 42, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.85);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.75);
+            border-color: rgba(255, 255, 255, 1);
+            color: #0f172a;
+        }
+
+        .btn-danger {
+            background: rgba(254, 226, 226, 0.6);
+            border: 1px solid rgba(254, 202, 202, 0.8);
+            color: #b91c1c;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .btn-danger:hover {
+            background: rgba(254, 202, 202, 0.85);
+            border-color: rgba(248, 113, 113, 0.7);
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #e2e8f0;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .tips {
+            background: rgba(255, 251, 235, 0.55);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border: 1px solid rgba(254, 243, 199, 0.9);
+            border-left: 3px solid rgba(245, 158, 11, 0.75);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .tips h4 {
+            color: #92400e;
+        }
+
+        .tips ul {
+            color: #57534e;
+        }
+
+        .tips code {
+            background: rgba(255, 255, 255, 0.65);
+            color: #1d4ed8;
+        }
+
+        .notice {
+            background: rgba(219, 234, 254, 0.5);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border: 1px solid rgba(191, 219, 254, 0.8);
+            color: #1e40af;
+        }
+
+        .cors-notice {
+            background: rgba(254, 249, 195, 0.5);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border: 1px solid rgba(253, 230, 138, 0.85);
+            color: #92400e;
+        }
+
+        .cors-proxy-section {
+            background: rgba(254, 249, 195, 0.45);
+            border: 1px solid rgba(253, 230, 138, 0.7);
+        }
+
+        .cors-proxy-picker-btn {
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            color: #0f172a;
+        }
+
+        .code-block {
+            background: rgba(8, 20, 45, 0.78);
+            backdrop-filter: blur(24px) saturate(140%);
+            -webkit-backdrop-filter: blur(24px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow:
+                0 8px 32px rgba(15, 23, 42, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .result-section {
+            border-top: 2px solid rgba(56, 189, 248, 0.6);
+        }
+
+        .result-section h3 {
+            color: #0f172a;
+        }
+
+        .tabs {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(16px) saturate(150%);
+            -webkit-backdrop-filter: blur(16px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .tab {
+            color: #475569;
+            border-radius: 999px;
+        }
+
+        .tab:hover {
+            color: #0f172a;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .tab.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #1e40af;
+            box-shadow:
+                0 2px 10px rgba(15, 23, 42, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
+
+        .cloud-preset-btn {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            color: #475569;
+            border-radius: 999px;
+        }
+
+        .cloud-preset-btn:hover {
+            background: rgba(236, 253, 245, 0.7);
+            border-color: rgba(110, 231, 183, 0.7);
+            color: #047857;
+        }
+
+        .cloud-preset-btn.active {
+            background: rgba(236, 253, 245, 0.85);
+            border-color: rgba(110, 231, 183, 0.9);
+            color: #047857;
+        }
+
+        .cloud-status.success {
+            background: rgba(236, 253, 245, 0.65);
+            border: 1px solid rgba(110, 231, 183, 0.8);
+            color: #047857;
+        }
+
+        .cloud-status.error {
+            background: rgba(254, 242, 242, 0.65);
+            border: 1px solid rgba(254, 202, 202, 0.85);
+            color: #b91c1c;
+        }
+
+        .cloud-status.info {
+            background: rgba(219, 234, 254, 0.65);
+            border: 1px solid rgba(191, 219, 254, 0.9);
+            color: #1e40af;
+        }
+
+        .import-textarea {
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            color: #0f172a;
+        }
+
+        .import-textarea:focus {
+            border-color: rgba(255, 255, 255, 1);
+            background: rgba(255, 255, 255, 0.78);
+        }
+
+        .footer {
+            background: rgba(255, 255, 255, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.6);
+            color: #64748b;
+        }
+
+        .footer a {
+            color: #1e40af;
+        }
+
+        @media (max-width: 768px) {
+            body { background-attachment: scroll; }
+        }
+
+        /* =======================================================
+           深色液态玻璃（Dark Liquid Glass）
+           深夜壁纸 + 发光极光色斑 + 深色玻璃层 + 高亮边缘
+           ======================================================= */
+
+        html[data-theme="dark"] body {
+            background: linear-gradient(170deg, #030814 0%, #061021 40%, #04101f 70%, #020a18 100%);
+            background-attachment: fixed;
+        }
+
+        html[data-theme="dark"] body::before {
+            background:
+                radial-gradient(900px circle at 10% 10%, rgba(14, 165, 233, 0.4) 0%, transparent 58%),
+                radial-gradient(1000px circle at 92% 8%, rgba(37, 99, 235, 0.38) 0%, transparent 58%),
+                radial-gradient(1100px circle at 80% 78%, rgba(6, 182, 212, 0.4) 0%, transparent 62%),
+                radial-gradient(850px circle at 12% 85%, rgba(99, 102, 241, 0.3) 0%, transparent 60%),
+                radial-gradient(700px circle at 48% 45%, rgba(13, 148, 136, 0.28) 0%, transparent 65%),
+                radial-gradient(550px circle at 65% 25%, rgba(56, 189, 248, 0.22) 0%, transparent 60%);
+        }
+
+        html[data-theme="dark"] .container {
+            background: rgba(8, 16, 34, 0.45);
+            backdrop-filter: blur(56px) saturate(190%);
+            -webkit-backdrop-filter: blur(56px) saturate(190%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow:
+                0 30px 90px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.16),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        html[data-theme="dark"] .content {
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .header {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.42) 0%, rgba(8, 145, 178, 0.32) 100%);
+            backdrop-filter: blur(32px) saturate(170%);
+            -webkit-backdrop-filter: blur(32px) saturate(170%);
+        }
+
+        html[data-theme="dark"] .header .header-badge, html[data-theme="dark"] .back-link {
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+        }
+
+        html[data-theme="dark"] .notice {
+            background: rgba(37, 99, 235, 0.14);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            color: #93c5fd;
+        }
+
+        html[data-theme="dark"] .cors-notice {
+            background: rgba(245, 158, 11, 0.09);
+            border: 1px solid rgba(245, 158, 11, 0.28);
+            color: #fcd34d;
+        }
+
+        html[data-theme="dark"] .cors-notice a {
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .cors-notice a:hover {
+            color: #bae6fd;
+        }
+
+        html[data-theme="dark"] .cors-proxy-section {
+            background: rgba(245, 158, 11, 0.06);
+            border: 1px solid rgba(245, 158, 11, 0.22);
+        }
+
+        html[data-theme="dark"] .cors-proxy-section .cors-proxy-toggle {
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .cors-proxy-section .cors-proxy-warning {
+            color: #f87171;
+        }
+
+        html[data-theme="dark"] .cors-proxy-picker-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #e2e8f0;
+        }
+
+        html[data-theme="dark"] .cors-proxy-picker-btn:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        html[data-theme="dark"] .cors-proxy-custom-name {
+            color: #94a3b8;
+        }
+
+        html[data-theme="dark"] .site-card, html[data-theme="dark"] .cloud-section, html[data-theme="dark"] .import-section, html[data-theme="dark"] .result-section {
+            background: rgba(12, 22, 44, 0.38);
+            backdrop-filter: blur(36px) saturate(180%);
+            -webkit-backdrop-filter: blur(36px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow:
+                0 10px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14),
+                inset 0 2px 8px rgba(255, 255, 255, 0.04),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        html[data-theme="dark"] .site-card:hover {
+            border-color: rgba(125, 211, 252, 0.4);
+            box-shadow:
+                0 16px 50px rgba(14, 165, 233, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                inset 0 2px 8px rgba(255, 255, 255, 0.05);
+        }
+
+        html[data-theme="dark"] .site-card::before {
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(125, 211, 252, 0.1) 0%, transparent 60%);
+        }
+
+        html[data-theme="dark"] .site-header {
+            background: rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme="dark"] .site-title {
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .site-title::before {
+            background: linear-gradient(180deg, #38bdf8, #2563eb);
+        }
+
+        html[data-theme="dark"] .accounts-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme="dark"] .accounts-label {
+            color: #94a3b8;
+        }
+
+        html[data-theme="dark"] .form-group label {
+            color: #cbd5e1;
+            text-shadow: none;
+        }
+
+        html[data-theme="dark"] .form-group label .required {
+            color: #f87171;
+        }
+
+        html[data-theme="dark"] .form-group input {
+            background: rgba(4, 10, 24, 0.45);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #f1f5f9;
+            box-shadow:
+                inset 0 1px 2px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme="dark"] .form-group input::placeholder {
+            color: #5b6b84;
+        }
+
+        html[data-theme="dark"] .form-group input:hover {
+            border-color: rgba(255, 255, 255, 0.28);
+            background: rgba(4, 10, 24, 0.55);
+        }
+
+        html[data-theme="dark"] .form-group input:focus {
+            border-color: rgba(125, 211, 252, 0.75);
+            background: rgba(4, 10, 24, 0.6);
+            box-shadow:
+                0 0 0 4px rgba(56, 189, 248, 0.18),
+                0 4px 20px rgba(14, 165, 233, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        }
+
+        html[data-theme="dark"] .form-group small {
+            color: #94a3b8;
+            text-shadow: none;
+        }
+
+        html[data-theme="dark"] .form-group input[id*="acc-access-token"] {
+            border-color: rgba(56, 189, 248, 0.45);
+            background: rgba(14, 116, 180, 0.14);
+        }
+
+        html[data-theme="dark"] .form-group input[id*="acc-access-token"]:hover {
+            border-color: rgba(56, 189, 248, 0.7);
+            background: rgba(14, 116, 180, 0.22);
+        }
+
+        html[data-theme="dark"] .form-group input[id*="acc-access-token"]:focus {
+            border-color: rgba(125, 211, 252, 0.85);
+            background: rgba(14, 116, 180, 0.26);
+            box-shadow:
+                0 0 0 4px rgba(56, 189, 248, 0.22),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        html[data-theme="dark"] .url-jump-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .url-jump-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: rgba(125, 211, 252, 0.5);
+            color: #bae6fd;
+        }
+
+        html[data-theme="dark"] .account-item {
+            background: rgba(6, 13, 28, 0.32);
+            backdrop-filter: blur(28px) saturate(170%);
+            -webkit-backdrop-filter: blur(28px) saturate(170%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 2px 5px rgba(255, 255, 255, 0.03),
+                0 2px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        html[data-theme="dark"] .account-item:hover {
+            border-color: rgba(125, 211, 252, 0.38);
+            background: rgba(10, 20, 42, 0.42);
+        }
+
+        html[data-theme="dark"] .account-item-title {
+            color: #7dd3fc;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        html[data-theme="dark"] .btn-primary {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.78) 0%, rgba(14, 165, 233, 0.78) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            box-shadow:
+                0 8px 28px rgba(14, 165, 233, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        html[data-theme="dark"] .btn-primary:hover {
+            box-shadow:
+                0 12px 40px rgba(14, 165, 233, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.55);
+        }
+
+        html[data-theme="dark"] .btn-success {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.78) 0%, rgba(16, 185, 129, 0.78) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            box-shadow:
+                0 8px 28px rgba(16, 185, 129, 0.32),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        html[data-theme="dark"] .btn-secondary {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #e2e8f0;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.14),
+                0 2px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        html[data-theme="dark"] .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.32);
+            color: #ffffff;
+        }
+
+        html[data-theme="dark"] .btn-danger {
+            background: rgba(248, 113, 113, 0.12);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            color: #fca5a5;
+        }
+
+        html[data-theme="dark"] .btn-danger:hover {
+            background: rgba(248, 113, 113, 0.24);
+            border-color: rgba(248, 113, 113, 0.55);
+        }
+
+        html[data-theme="dark"] .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .copy-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: rgba(125, 211, 252, 0.5);
+            color: #bae6fd;
+        }
+
+        html[data-theme="dark"] .tips {
+            background: rgba(245, 158, 11, 0.07);
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+            border: 1px solid rgba(245, 158, 11, 0.26);
+            border-left: 3px solid rgba(245, 158, 11, 0.65);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme="dark"] .tips h4 {
+            color: #fbbf24;
+        }
+
+        html[data-theme="dark"] .tips ul {
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .tips code {
+            background: rgba(56, 189, 248, 0.12);
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .result-section {
+            border-top: 2px solid rgba(56, 189, 248, 0.55);
+        }
+
+        html[data-theme="dark"] .result-section h3 {
+            color: #f1f5f9;
+        }
+
+        html[data-theme="dark"] .code-block {
+            background: rgba(2, 8, 22, 0.62);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow:
+                0 10px 40px rgba(0, 0, 0, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        html[data-theme="dark"] .tabs {
+            background: rgba(4, 10, 24, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        }
+
+        html[data-theme="dark"] .tab {
+            color: #94a3b8;
+        }
+
+        html[data-theme="dark"] .tab:hover {
+            color: #e2e8f0;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        html[data-theme="dark"] .tab.active {
+            background: rgba(255, 255, 255, 0.14);
+            color: #ffffff;
+            box-shadow:
+                0 2px 10px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        html[data-theme="dark"] .cloud-section {
+            background: rgba(6, 40, 32, 0.32);
+            border: 1px solid rgba(16, 185, 129, 0.22);
+        }
+
+        html[data-theme="dark"] .cloud-section h3 {
+            color: #059669;
+        }
+
+        html[data-theme="dark"] .cloud-section h3::before {
+            background: #10b981;
+        }
+
+        html[data-theme="dark"] .cloud-preset-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .cloud-preset-btn:hover {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(52, 211, 153, 0.4);
+            color: #6ee7b7;
+        }
+
+        html[data-theme="dark"] .cloud-preset-btn.active {
+            background: rgba(16, 185, 129, 0.18);
+            border-color: rgba(52, 211, 153, 0.55);
+            color: #6ee7b7;
+        }
+
+        html[data-theme="dark"] .cloud-status.success {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.35);
+            color: #6ee7b7;
+        }
+
+        html[data-theme="dark"] .cloud-status.error {
+            background: rgba(248, 113, 113, 0.12);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            color: #fca5a5;
+        }
+
+        html[data-theme="dark"] .cloud-status.info {
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(125, 211, 252, 0.35);
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .import-section {
+            background: rgba(12, 22, 44, 0.38);
+            border: 1px solid rgba(125, 211, 252, 0.28);
+        }
+
+        html[data-theme="dark"] .import-section h3 {
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .import-section h3::before {
+            background: #38bdf8;
+        }
+
+        html[data-theme="dark"] .import-textarea {
+            background: rgba(4, 10, 24, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #f1f5f9;
+        }
+
+        html[data-theme="dark"] .import-textarea:focus {
+            border-color: rgba(125, 211, 252, 0.7);
+            background: rgba(4, 10, 24, 0.58);
+        }
+
+        html[data-theme="dark"] .footer {
+            background: rgba(2, 8, 22, 0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+        }
+
+        html[data-theme="dark"] .footer a {
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .footer a:hover {
+            color: #bae6fd;
+        }
+
+        html[data-theme="dark"] ::selection {
+            background: rgba(56, 189, 248, 0.32);
+        }
+
+        html[data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.26);
+        }
+
+        /* =======================================================
+           主题切换
+           ======================================================= */
+
+        html { color-scheme: light; }
+
+        html[data-theme="dark"] { color-scheme: dark; }
+
+        .theme-toggle {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            width: 46px;
+            height: 46px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(16px) saturate(170%);
+            -webkit-backdrop-filter: blur(16px) saturate(170%);
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow:
+                0 4px 16px rgba(15, 23, 42, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+            border-color: #ffffff;
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        html[data-theme="dark"] .theme-toggle {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.22);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                0 4px 16px rgba(0, 0, 0, 0.45);
+        }
+
+        .hint-amber { color: #b45309; }
+
+        html[data-theme="dark"] .hint-amber { color: #fbbf24; }
+
+        .btn-cloud { color: #059669; border-color: rgba(5, 150, 105, 0.35); }
+
+        html[data-theme="dark"] .btn-cloud { color: #059669; border-color: rgba(52, 211, 153, 0.4); }
+
+        .btn-import { color: #2563eb; border-color: rgba(37, 99, 235, 0.35); }
+
+        html[data-theme="dark"] .btn-import { color: #7dd3fc; border-color: rgba(125, 211, 252, 0.4); }
+
+        .btn-clear { color: #dc2626; border-color: rgba(220, 38, 38, 0.35); }
+
+        html[data-theme="dark"] .btn-clear { color: #f87171; border-color: rgba(248, 113, 113, 0.4); }
+
+        /* 深色模式对比度修复 */
+
+        html[data-theme="dark"] .footer {
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .footer a {
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .footer a:hover {
+            color: #bae6fd;
+        }
+
+        html[data-theme="dark"] .feature h3 {
+            color: #7dd3fc;
+            text-shadow: none;
+        }
+
+        html[data-theme="dark"] .feature p {
+            color: #cbd5e1;
+        }
+
+        /* 窄屏下玻璃铺满全宽，消除两侧漏底 */
+
+        @media (max-width: 840px) {
+            body {
+                padding: 0;
+            }
+
+            .container {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+                border-top: none;
+            }
+
+            .theme-toggle {
+                top: 12px;
+                right: 12px;
+            }
+        }
+        </style>
 
         <div class="content">
             <div id="cors-notice" class="cors-notice" style="display: none;">
                 <span class="cors-icon">⚠️</span>
                 <div>
                     <strong id="cors-notice-title">当前页面以网络协议运行，云端同步可能受 CORS 跨域限制。</strong><br>
-                    <span id="cors-notice-tips" style="color: rgba(255,255,255,0.6);">如遇连接失败，推荐优先在云端同步中启用 <strong>CORS 代理</strong>。</span>
+                    <span id="cors-notice-tips" style="color: #94a3b8;">如遇连接失败，推荐优先在云端同步中启用 <strong>CORS 代理</strong>。</span>
                 </div>
             </div>
             <div id="sites-container"></div>
@@ -1117,14 +3947,14 @@
             <div class="btn-group" style="margin-top: 12px;">
                 <button class="btn btn-secondary" onclick="saveToLocal()">💾 保存到本地</button>
                 <button class="btn btn-secondary" onclick="loadFromLocal()">📂 从本地加载</button>
-                <button class="btn btn-secondary" onclick="toggleCloudSync()" style="color: #34d399; border-color: rgba(52,211,153,0.3);">☁️ 云端同步</button>
-                <button class="btn btn-secondary" onclick="toggleImport()" style="color: #a78bfa; border-color: rgba(167,139,250,0.3);">📋 导入 JSON</button>
-                <button class="btn btn-secondary" onclick="clearLocal()" style="color: #f56565; border-color: rgba(245,101,101,0.3);">🗑️ 清除本地数据</button>
+                <button class="btn btn-secondary btn-cloud" onclick="toggleCloudSync()">☁️ 云端同步</button>
+                <button class="btn btn-secondary btn-import" onclick="toggleImport()">📋 导入 JSON</button>
+                <button class="btn btn-secondary btn-clear" onclick="clearLocal()">🗑️ 清除本地数据</button>
             </div>
 
             <div id="cloud-section" class="cloud-section" style="display: none;">
                 <h3>☁️ 云端同步</h3>
-                <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 16px;">将配置保存到你的云盘/NAS，GitHub Actions 签到脚本可直接从云端拉取配置，改配置无需推代码</p>
+                <p style="color: #94a3b8; font-size: 14px; margin-bottom: 16px;">将配置保存到你的云盘/NAS，GitHub Actions 签到脚本可直接从云端拉取配置，改配置无需推代码</p>
 
                 <div class="cloud-presets">
                     <button class="cloud-preset-btn" onclick="applyCloudPreset('jianguoyun')" id="preset-jianguoyun">🥜 坚果云</button>
@@ -1141,9 +3971,9 @@
                     </div>
                     <div class="form-group">
                         <label>认证方式</label>
-                        <select id="cloud-auth-type" style="width:100%;padding:12px 16px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;font-size:14px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);outline:none;">
-                            <option value="basic" style="background:#1a1a2e;">Basic Auth（用户名+密码）</option>
-                            <option value="token" style="background:#1a1a2e;">Token（访问令牌）</option>
+                        <select id="cloud-auth-type" style="width:100%;padding:12px 16px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);outline:none;">
+                            <option value="basic" style="background:#0f172a;">Basic Auth（用户名+密码）</option>
+                            <option value="token" style="background:#0f172a;">Token（访问令牌）</option>
                         </select>
                     </div>
                 </div>
@@ -1179,13 +4009,13 @@
                         <span>方案三：CORS 代理（临时最快，不推荐存敏感数据）</span>
                     </label>
                     <div class="form-group" id="cors-proxy-field" style="display: none;">
-                        <label style="color: rgba(255,255,255,0.65);">CORS 代理地址</label>
+                        <label style="color: #94a3b8;">CORS 代理地址</label>
                         <button type="button" class="cors-proxy-picker-btn" id="cors-proxy-picker-btn" onclick="openCorsProxyPicker()">
                             <span id="cors-proxy-current-label">选择内置代理或填写自定义地址</span>
                             <span class="cors-proxy-picker-arrow">▸</span>
                         </button>
                         <input type="text" id="cors-proxy-url" placeholder="或直接在此粘贴代理地址" style="display: none; margin-bottom: 10px;" oninput="updateCorsProxyPreview()">
-                        <small>代理地址拼在 WebDAV 地址前面，实际请求变为：<code id="cors-proxy-preview" style="color:#a78bfa;">代理地址 + WebDAV地址</code></small>
+                        <small>代理地址拼在 WebDAV 地址前面，实际请求变为：<code id="cors-proxy-preview" style="color:#0284c7;">代理地址 + WebDAV地址</code></small>
                         <div id="cors-proxy-friendly-name" class="cors-proxy-friendly-name"></div>
                     </div>
                     <div class="cors-proxy-warning" id="cors-proxy-warning" style="display: none;">
@@ -1195,13 +4025,13 @@
 
                 <div id="cloud-status" class="cloud-status"></div>
 
-                <div id="cloud-saved-config" style="display: none; margin-top: 12px; padding: 12px 16px; background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.15); border-radius: 10px; font-size: 13px; color: rgba(255,255,255,0.7);">
-                    <span style="color: #34d399;">☁️ 已保存的云端配置：</span>
-                    <span id="cloud-saved-url" style="color: rgba(255,255,255,0.5);"></span>
-                    <span style="color: rgba(255,255,255,0.3);">|</span>
-                    <span id="cloud-saved-username" style="color: rgba(255,255,255,0.5);"></span>
-                    <span style="color: rgba(255,255,255,0.3);">|</span>
-                    <span id="cloud-saved-auth" style="color: rgba(255,255,255,0.5);"></span>
+                <div id="cloud-saved-config" style="display: none; margin-top: 12px; padding: 12px 16px; background: rgba(16,185,129,0.08); border: 1px solid rgba(52,211,153,0.15); border-radius: 10px; font-size: 13px; color: rgba(255,255,255,0.7);">
+                    <span style="color: #059669;">☁️ 已保存的云端配置：</span>
+                    <span id="cloud-saved-url" style="color: #94a3b8;"></span>
+                    <span style="color: #cbd5e1;">|</span>
+                    <span id="cloud-saved-username" style="color: #94a3b8;"></span>
+                    <span style="color: #cbd5e1;">|</span>
+                    <span id="cloud-saved-auth" style="color: #94a3b8;"></span>
                     <button class="btn btn-danger btn-xs" style="margin-left: 8px; padding: 4px 10px; font-size: 12px;" onclick="clearCloudConfig()">清除</button>
                 </div>
 
@@ -1217,21 +4047,21 @@
 <h4>💡 各平台配置获取指南：</h4>
 
                         <div style="margin-bottom: 12px;">
-                            <strong style="color: #34d399;">🥜 坚果云</strong>
-                            <a href="https://help.jianguoyun.com/?tag=webdav" target="_blank" style="color: #a78bfa; font-size: 13px; margin-left: 6px;">官方文档 ↗</a>
-                            <a href="https://content.jianguoyun.com/664.html" target="_blank" style="color: #a78bfa; font-size: 13px; margin-left: 6px;">应用密码创建 ↗</a>
-                            <ul style="margin-left: 20px; color: rgba(255,255,255,0.65); font-size: 13px; line-height: 1.7; margin-top: 4px;">
+                            <strong style="color: #059669;">🥜 坚果云</strong>
+                            <a href="https://help.jianguoyun.com/?tag=webdav" target="_blank" style="color: #0284c7; font-size: 13px; margin-left: 6px;">官方文档 ↗</a>
+                            <a href="https://content.jianguoyun.com/664.html" target="_blank" style="color: #0284c7; font-size: 13px; margin-left: 6px;">应用密码创建 ↗</a>
+                            <ul style="margin-left: 20px; color: #94a3b8; font-size: 13px; line-height: 1.7; margin-top: 4px;">
                                 <li>WebDAV 地址：<code>https://dav.jianguoyun.com/dav/邮箱/</code></li>
-                                <li>创建应用密码：登录坚果云 → <a href="https://www.jianguoyun.com/account/info" target="_blank" style="color: #a78bfa;">账户信息 ↗</a> → 安全选项 → 第三方应用管理 → 添加应用密码</li>
+                                <li>创建应用密码：登录坚果云 → <a href="https://www.jianguoyun.com/account/info" target="_blank" style="color: #0284c7;">账户信息 ↗</a> → 安全选项 → 第三方应用管理 → 添加应用密码</li>
                                 <li>用户名：坚果云注册邮箱；密码：生成的应用专用密码（不是登录密码）</li>
                             </ul>
                         </div>
 
                         <div style="margin-bottom: 12px;">
-                            <strong style="color: #34d399;">🏠 群晖 NAS</strong>
-                            <a href="https://kb.synology.cn/zh-cn/DSM/tutorial/How_to_access_files_on_Synology_NAS_with_WebDAV" target="_blank" style="color: #a78bfa; font-size: 13px; margin-left: 6px;">官方文档 ↗</a>
-                            <a href="https://kb.synology.cn/zh-cn/DSM/help/WebDAVServer/webdav_server" target="_blank" style="color: #a78bfa; font-size: 13px; margin-left: 6px;">WebDAV Server 帮助 ↗</a>
-                            <ul style="margin-left: 20px; color: rgba(255,255,255,0.65); font-size: 13px; line-height: 1.7; margin-top: 4px;">
+                            <strong style="color: #059669;">🏠 群晖 NAS</strong>
+                            <a href="https://kb.synology.cn/zh-cn/DSM/tutorial/How_to_access_files_on_Synology_NAS_with_WebDAV" target="_blank" style="color: #0284c7; font-size: 13px; margin-left: 6px;">官方文档 ↗</a>
+                            <a href="https://kb.synology.cn/zh-cn/DSM/help/WebDAVServer/webdav_server" target="_blank" style="color: #0284c7; font-size: 13px; margin-left: 6px;">WebDAV Server 帮助 ↗</a>
+                            <ul style="margin-left: 20px; color: #94a3b8; font-size: 13px; line-height: 1.7; margin-top: 4px;">
                                 <li>启用 WebDAV：DSM → 套件中心 → 搜索「WebDAV Server」→ 安装 → 启用 HTTP/HTTPS</li>
                                 <li>HTTPS 端口 5006，HTTP 端口 5005（建议 HTTPS）</li>
                                 <li>地址格式：<code>https://NAS域名:5006/webdav/</code>（需确保 NAS 外网可达）</li>
@@ -1240,9 +4070,9 @@
                         </div>
 
                         <div style="margin-bottom: 12px;">
-                            <strong style="color: #34d399;">☁️ NextCloud</strong>
-                            <a href="https://docs.nextcloud.com/server/latest/user_manual/en/files/access_webdav.html" target="_blank" style="color: #a78bfa; font-size: 13px; margin-left: 6px;">官方文档 ↗</a>
-                            <ul style="margin-left: 20px; color: rgba(255,255,255,0.65); font-size: 13px; line-height: 1.7; margin-top: 4px;">
+                            <strong style="color: #059669;">☁️ NextCloud</strong>
+                            <a href="https://docs.nextcloud.com/server/latest/user_manual/en/files/access_webdav.html" target="_blank" style="color: #0284c7; font-size: 13px; margin-left: 6px;">官方文档 ↗</a>
+                            <ul style="margin-left: 20px; color: #94a3b8; font-size: 13px; line-height: 1.7; margin-top: 4px;">
                                 <li>WebDAV 地址：<code>https://域名/remote.php/dav/files/用户名/</code></li>
                                 <li>在 NextCloud 文件页面 → 设置 → WebDAV 可查看完整地址</li>
                                 <li>如启用了 2FA，需在个人安全设置中创建应用密码</li>
@@ -1251,16 +4081,16 @@
                         </div>
 
                         <div>
-                            <strong style="color: #34d399;">⚙️ GitHub Actions 配置</strong>
-                            <ul style="margin-left: 20px; color: rgba(255,255,255,0.65); font-size: 13px; line-height: 1.7; margin-top: 4px;">
+                            <strong style="color: #059669;">⚙️ GitHub Actions 配置</strong>
+                            <ul style="margin-left: 20px; color: #94a3b8; font-size: 13px; line-height: 1.7; margin-top: 4px;">
                                 <li>保存到云端后，将 <code>CONFIG_URL</code> 和 <code>CONFIG_AUTH</code> 添加到仓库 Settings → Secrets</li>
                                 <li>签到脚本优先从云端拉取配置，失败则 fallback 到 <code>NEWAPI_ACCOUNTS</code></li>
                             </ul>
                         </div>
 
-                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(52,211,153,0.15);">
-                        <h4 style="color: #fbbf24; margin-bottom: 12px; font-size: 14px;">⚠️ CORS 跨域限制解决方案：</h4>
-                        <ul style="margin-left: 20px; color: rgba(255,255,255,0.65); font-size: 13px; line-height: 1.8;">
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(16,185,129,0.2);">
+                        <h4 style="color: #b45309; margin-bottom: 12px; font-size: 14px;">⚠️ CORS 跨域限制解决方案：</h4>
+                        <ul style="margin-left: 20px; color: #94a3b8; font-size: 13px; line-height: 1.8;">
                             <li><strong>方案一（推荐）：</strong>本地打开 HTML 文件（<code>file://</code> 协议），CORS 限制自动绕过</li>
                             <li><strong>方案二：</strong>群晖/NextCloud 在服务端添加 CORS 头 <code>Access-Control-Allow-Origin</code></li>
                             <li><strong>方案三：</strong>坚果云不支持自定义 CORS，请用方案一</li>
@@ -1282,12 +4112,13 @@
 
             <div id="import-section" class="import-section" style="display: none;">
                 <h3>📋 导入 JSON 配置</h3>
-                <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 16px;">粘贴已有的 JSON 配置，一键导入并按站点自动分组填充表单</p>
+                <p style="color: #94a3b8; font-size: 14px; margin-bottom: 16px;">粘贴已有的 JSON 配置，一键导入并按站点自动分组填充表单</p>
                 <textarea id="import-json" class="import-textarea" placeholder='粘贴 JSON 配置，例如：
 [
   {
     "url": "https://api.example.com",
     "session": "MTc2NzQxMzYzM3...",
+    "access_token": "系统访问令牌(可选，推荐)",
     "user_id": "123",
     "name": "主力站",
     "cf_clearance": "xxsCgaPMM..."
@@ -1303,7 +4134,7 @@
                 <h4>💡 使用提示：</h4>
                 <ul>
                     <li><strong>站点分组：</strong>同一站点的 URL 和 CF Clearance 只需填写一次，站点下可添加多个账号</li>
-                    <li><strong>账号信息：</strong>每个账号只需填写 Session、用户ID 和备注名称</li>
+                    <li><strong>账号信息：</strong>每个账号填写 Session 或 系统访问令牌（二选一，推荐令牌）、用户ID 和备注名称；令牌在站点「个人设置」中生成，配置后不依赖 session 且支持 Turnstile 人机验证站点</li>
                     <li><strong>保存到本地：</strong>将配置保存到浏览器本地存储，下次访问自动加载</li>
                     <li><strong>明文存储：</strong>数据以明文形式存储在浏览器中，请注意安全</li>
                 </ul>
@@ -1343,7 +4174,7 @@
         </div>
 
         <div class="footer">
-            <p>Made with ❤️ by <a href="https://github.com/Jasonliu-0/Newapi-checkin" target="_blank">Jasonliu-0</a></p>
+            <p>Made with ❤️ by <a href="https://github.com/Jasonliu-0/Newapi-checkin" target="_blank" style="display: inline-flex; align-items: center;"><svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style="vertical-align: -2px; margin-right: 4px;"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53 .63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Jasonliu-0</a></p>
         </div>
     </div>
 
@@ -1417,8 +4248,13 @@
                 </div>
                 <div class="account-fields">
                     <div class="form-group">
-                        <label>Session <span class="required">*</span></label>
+                        <label>Session <span style="color: #94a3b8;">(与令牌二选一)</span></label>
                         <input type="text" id="acc-session-${siteId}-${accIdx}" placeholder="MTc2NzQxMzYzM3...">
+                    </div>
+                    <div class="form-group">
+                        <label>系统访问令牌 <span style="color: #94a3b8;">(可选，推荐)</span></label>
+                        <input type="text" id="acc-access-token-${siteId}-${accIdx}" placeholder="粘贴系统访问令牌，如 Y13BF+k/... ">
+                        <small class="hint-amber">获取方式：登录站点 → 右上角头像 → 个人设置 → 系统访问令牌 → 生成并复制</small>
                     </div>
                     <div class="form-group">
                         <label>用户ID <span class="required">*</span></label>
@@ -1511,13 +4347,14 @@
                     const sId = parts[1];
                     const aId = parts[2];
                     const session = document.getElementById(`acc-session-${sId}-${aId}`).value.trim();
+                    const accessToken = document.getElementById(`acc-access-token-${sId}-${aId}`)?.value.trim() || '';
                     const userId = document.getElementById(`acc-userid-${sId}-${aId}`).value.trim();
                     const name = document.getElementById(`acc-name-${sId}-${aId}`).value.trim();
                     const loginUser = document.getElementById(`acc-login-user-${sId}-${aId}`)?.value.trim() || '';
                     const loginPass = document.getElementById(`acc-login-pass-${sId}-${aId}`)?.value.trim() || '';
 
-                    if (!session || !userId) {
-                        alert(`站点 ${siteId} 账号 ${aId}: Session 和 用户ID 不能为空`);
+                    if ((!session && !accessToken) || !userId) {
+                        alert(`站点 ${siteId} 账号 ${aId}: Session 与 系统访问令牌 至少填一个，用户ID 不能为空`);
                         hasError = true;
                         return;
                     }
@@ -1528,6 +4365,10 @@
                         user_id: userId,
                         name: name || `站点${siteId}-账号${aId}`
                     };
+
+                    if (accessToken) {
+                        account.access_token = accessToken;
+                    }
 
                     if (cfClearance) {
                         account.cf_clearance = cfClearance;
@@ -1547,7 +4388,7 @@
             if (hasError || accounts.length === 0) return;
 
             document.getElementById('json-output').textContent = JSON.stringify(accounts, null, 2);
-            document.getElementById('simple-output').textContent = accounts.map(acc => `${acc.url}#${acc.session}`).join(',');
+            document.getElementById('simple-output').textContent = accounts.map(acc => `${acc.url}#${acc.session}${acc.access_token ? '#' + acc.access_token : ''}`).join(',');
 
             document.getElementById('result').style.display = 'block';
             document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
@@ -1645,6 +4486,7 @@
                     const aId = parts[2];
                     accs.push({
                         session: document.getElementById(`acc-session-${sId}-${aId}`).value.trim(),
+                        accessToken: document.getElementById(`acc-access-token-${sId}-${aId}`)?.value.trim() || '',
                         userId: document.getElementById(`acc-userid-${sId}-${aId}`).value.trim(),
                         name: document.getElementById(`acc-name-${sId}-${aId}`).value.trim(),
                         loginUser: document.getElementById(`acc-login-user-${sId}-${aId}`)?.value.trim() || '',
@@ -1652,7 +4494,7 @@
                     });
                 });
 
-                if (url || cfClearance || accs.some(a => a.session || a.userId || a.name)) {
+                if (url || cfClearance || accs.some(a => a.session || a.accessToken || a.userId || a.name)) {
                     sites.push({ url, cfClearance, accounts: accs });
                 }
             });
@@ -1702,6 +4544,8 @@
                         if (i > 0) addAccountToSite(sid);
                         const aid = siteAccountCounts[sid];
                         document.getElementById(`acc-session-${sid}-${aid}`).value = acc.session || '';
+                        const accessTokenEl = document.getElementById(`acc-access-token-${sid}-${aid}`);
+                        if (accessTokenEl) accessTokenEl.value = acc.accessToken || acc.access_token || '';
                         document.getElementById(`acc-userid-${sid}-${aid}`).value = acc.userId || '';
                         document.getElementById(`acc-name-${sid}-${aid}`).value = acc.name || '';
                         const loginUserEl = document.getElementById(`acc-login-user-${sid}-${aid}`);
@@ -1722,6 +4566,7 @@
                 }
                 grouped[key].accounts.push({
                     session: acc.session || '',
+                    accessToken: acc.accessToken || acc.access_token || '',
                     userId: acc.userId || acc.user_id || '',
                     name: acc.name || '',
                     loginUser: acc.loginUser || acc.login_username || '',
@@ -1754,8 +4599,9 @@
                 }
 
                 for (let i = 0; i < accounts.length; i++) {
-                    if (!accounts[i].url || !accounts[i].session) {
-                        alert(`⚠️ 第 ${i + 1} 个账号缺少 url 或 session 字段`);
+                    const acc = accounts[i];
+                    if (!acc.url || (!acc.session && !acc.access_token)) {
+                        alert(`⚠️ 第 ${i + 1} 个账号缺少 url，且 session 与 access_token 至少需要一个`);
                         return;
                     }
                 }
@@ -1994,7 +4840,7 @@
             } else {
                 noticeEl.style.display = 'flex';
                 titleEl.textContent = '当前页面以网络协议运行，云端同步受 CORS 跨域限制。';
-                tipsEl.innerHTML = '推荐在云端同步中启用 <strong>CORS 代理</strong>，或 <a href="javascript:void(0)" onclick="downloadThisPage()" style="color:#a78bfa;">下载到本地</a>后用 <strong>Firefox</strong> 打开。群晖/NextCloud 可在服务端配置 CORS 头。';
+                tipsEl.innerHTML = '推荐在云端同步中启用 <strong>CORS 代理</strong>，或 <a href="javascript:void(0)" onclick="downloadThisPage()" style="color:#0284c7;">下载到本地</a>后用 <strong>Firefox</strong> 打开。群晖/NextCloud 可在服务端配置 CORS 头。';
             }
         })();
 
@@ -2066,7 +4912,7 @@
                         <div class="cors-proxy-opt-name">${p.name}</div>
                         <div class="cors-proxy-opt-host">${p.host}</div>
                         <span class="cors-proxy-opt-tag ${tag.cls}">${tag.text}</span>
-                        <span style="font-size:12px;color:rgba(255,255,255,0.35);margin-left:6px;">${p.note}</span>
+                        <span style="font-size:12px;color:#cbd5e1;margin-left:6px;">${p.note}</span>
                         ${isActive ? '<span class="cors-proxy-opt-tag recommended" style="margin-left:8px;">✓ 当前</span>' : ''}
                     </div>`;
             }).join('');
@@ -2075,7 +4921,7 @@
             body.innerHTML += `
                 <div class="cors-proxy-opt cors-proxy-custom" onclick="selectCustomProxy()">
                     <div class="cors-proxy-opt-name">✏️ 手动输入自定义地址</div>
-                    <div class="cors-proxy-opt-custom-tip" style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:4px;">粘贴你自己的 CORS 代理或自建代理地址</div>
+                    <div class="cors-proxy-opt-custom-tip" style="font-size:12px;color:#cbd5e1;margin-top:4px;">粘贴你自己的 CORS 代理或自建代理地址</div>
                 </div>`;
         }
 
@@ -2260,12 +5106,13 @@
                     const sId = parts[1];
                     const aId = parts[2];
                     const session = document.getElementById(`acc-session-${sId}-${aId}`).value.trim();
+                    const accessToken = document.getElementById(`acc-access-token-${sId}-${aId}`)?.value.trim() || '';
                     const userId = document.getElementById(`acc-userid-${sId}-${aId}`).value.trim();
                     const name = document.getElementById(`acc-name-${sId}-${aId}`).value.trim();
                     const loginUser = document.getElementById(`acc-login-user-${sId}-${aId}`)?.value.trim() || '';
                     const loginPass = document.getElementById(`acc-login-pass-${sId}-${aId}`)?.value.trim() || '';
 
-                    if (!session) return;
+                    if (!session && !accessToken) return;
 
                     const account = {
                         url: fullUrl,
@@ -2273,6 +5120,10 @@
                         user_id: userId,
                         name: name || `站点${siteId}-账号${aId}`
                     };
+
+                    if (accessToken) {
+                        account.access_token = accessToken;
+                    }
 
                     if (cfClearance) {
                         account.cf_clearance = cfClearance;
@@ -2512,11 +5363,11 @@
             cloudTip.className = 'cloud-usage-tip';
             cloudTip.style.cssText = 'margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(52,211,153,0.2);';
             cloudTip.innerHTML = `
-                <h4 style="color: #34d399; margin-bottom: 12px;">☁️ 云端配置使用方法：</h4>
-                <ul style="margin-left: 20px; color: rgba(255,255,255,0.65);">
+                <h4 style="color: #059669; margin-bottom: 12px;">☁️ 云端配置使用方法：</h4>
+                <ul style="margin-left: 20px; color: #94a3b8;">
                     <li style="margin-bottom: 8px;">在 GitHub 仓库 <code>Settings → Secrets</code> 中添加：</li>
-                    <li style="margin-bottom: 8px;"><code>CONFIG_URL</code> = <span style="color:#34d399;">${maskedUrl}...</span> <button class="btn btn-secondary btn-xs" style="padding:4px 10px;font-size:12px;" onclick="copySecretValue('config_url')">复制</button></li>
-                    <li style="margin-bottom: 8px;"><code>CONFIG_AUTH</code> = <span style="color:#34d399;">${maskedAuth}</span> <button class="btn btn-secondary btn-xs" style="padding:4px 10px;font-size:12px;" onclick="copySecretValue('config_auth')">复制</button></li>
+                    <li style="margin-bottom: 8px;"><code>CONFIG_URL</code> = <span style="color:#059669;">${maskedUrl}...</span> <button class="btn btn-secondary btn-xs" style="padding:4px 10px;font-size:12px;" onclick="copySecretValue('config_url')">复制</button></li>
+                    <li style="margin-bottom: 8px;"><code>CONFIG_AUTH</code> = <span style="color:#059669;">${maskedAuth}</span> <button class="btn btn-secondary btn-xs" style="padding:4px 10px;font-size:12px;" onclick="copySecretValue('config_auth')">复制</button></li>
                     <li style="margin-bottom: 8px;">签到脚本会优先从云端拉取配置，无需每次修改后推代码</li>
                 </ul>
             `;

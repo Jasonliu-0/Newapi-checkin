@@ -249,7 +249,7 @@
 
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.45);
+            box-shadow: 0 10px 40px rgba(37, 99, 235, 0.45);
         }
 
         .btn:active {
@@ -325,9 +325,792 @@
 
             .btn { padding: 16px 24px; font-size: 16px; }
         }
+
+        /* =======================================================
+           液态玻璃主题（Liquid Glass，iOS 26 / macOS Tahoe 风格）
+           ======================================================= */
+
+        body {
+            background: linear-gradient(160deg, #dbeafe 0%, #e0f2fe 35%, #cffafe 65%, #e0e7ff 100%);
+            background-attachment: fixed;
+        }
+
+        body::before {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(850px circle at 8% 12%, rgba(14, 165, 233, 0.62) 0%, transparent 60%),
+                radial-gradient(950px circle at 92% 6%, rgba(37, 99, 235, 0.55) 0%, transparent 58%),
+                radial-gradient(1050px circle at 80% 74%, rgba(6, 182, 212, 0.55) 0%, transparent 62%),
+                radial-gradient(800px circle at 12% 82%, rgba(59, 130, 246, 0.48) 0%, transparent 60%),
+                radial-gradient(650px circle at 48% 42%, rgba(125, 211, 252, 0.4) 0%, transparent 65%),
+                radial-gradient(500px circle at 68% 30%, rgba(45, 212, 191, 0.3) 0%, transparent 62%);
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.32);
+            backdrop-filter: blur(52px) saturate(200%);
+            -webkit-backdrop-filter: blur(52px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            box-shadow:
+                0 24px 70px rgba(15, 23, 42, 0.16),
+                0 2px 8px rgba(15, 23, 42, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.35);
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.68) 0%, rgba(14, 165, 233, 0.55) 100%);
+            backdrop-filter: blur(28px) saturate(160%);
+            -webkit-backdrop-filter: blur(28px) saturate(160%);
+        }
+
+        .header::after {
+            background: linear-gradient(to top, rgba(219, 234, 254, 0.25), transparent);
+        }
+
+        .header h1 {
+            text-shadow: 0 2px 24px rgba(255, 255, 255, 0.35);
+        }
+
+        .content {
+            color: #1e293b;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(28px) saturate(170%);
+            -webkit-backdrop-filter: blur(28px) saturate(170%);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow:
+                0 8px 32px rgba(15, 23, 42, 0.07),
+                inset 0 1px 0 rgba(255, 255, 255, 1),
+                inset 0 2px 6px rgba(255, 255, 255, 0.35),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .feature:hover {
+            background: rgba(255, 255, 255, 0.48);
+            border-color: rgba(255, 255, 255, 0.95);
+            box-shadow:
+                0 14px 44px rgba(37, 99, 235, 0.16),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
+
+        .feature h3 {
+            color: #1e40af;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .feature p {
+            color: #334155;
+        }
+
+        .features-list li {
+            color: #334155;
+            background: rgba(255, 255, 255, 0.42);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            border-radius: 999px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .features-list li:hover {
+            background: rgba(255, 255, 255, 0.7);
+            border-color: rgba(255, 255, 255, 1);
+        }
+
+        .features-list li::before {
+            color: #059669;
+        }
+
+        .btn {
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.9) 0%, rgba(14, 165, 233, 0.9) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow:
+                0 8px 24px rgba(37, 99, 235, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.55),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .btn:hover {
+            box-shadow:
+                0 12px 34px rgba(37, 99, 235, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.88) 0%, rgba(16, 185, 129, 0.88) 100%);
+            box-shadow:
+                0 8px 24px rgba(5, 150, 105, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.55);
+        }
+
+        .btn-secondary:hover {
+            box-shadow:
+                0 12px 34px rgba(5, 150, 105, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .footer {
+            background: rgba(255, 255, 255, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.6);
+            color: #64748b;
+        }
+
+        .footer a {
+            color: #1e40af;
+        }
+
+        .footer a::after {
+            background: #2563eb;
+        }
+
+        .footer a:hover {
+            color: #1d4ed8;
+        }
+
+        ::selection {
+            background: rgba(37, 99, 235, 0.22);
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(15, 23, 42, 0.18);
+            border-radius: 5px;
+        }
+
+        /* =======================================================
+           深色液态玻璃（Dark Liquid Glass）
+           深夜壁纸 + 发光极光色斑 + 深色玻璃层 + 高亮边缘
+           ======================================================= */
+
+        html[data-theme="dark"] body {
+            background: linear-gradient(170deg, #030814 0%, #061021 40%, #04101f 70%, #020a18 100%);
+            background-attachment: fixed;
+        }
+
+        html[data-theme="dark"] body::before {
+            background:
+                radial-gradient(900px circle at 10% 10%, rgba(14, 165, 233, 0.4) 0%, transparent 58%),
+                radial-gradient(1000px circle at 92% 8%, rgba(37, 99, 235, 0.38) 0%, transparent 58%),
+                radial-gradient(1100px circle at 80% 78%, rgba(6, 182, 212, 0.4) 0%, transparent 62%),
+                radial-gradient(850px circle at 12% 85%, rgba(99, 102, 241, 0.3) 0%, transparent 60%),
+                radial-gradient(700px circle at 48% 45%, rgba(13, 148, 136, 0.28) 0%, transparent 65%),
+                radial-gradient(550px circle at 65% 25%, rgba(56, 189, 248, 0.22) 0%, transparent 60%);
+        }
+
+        html[data-theme="dark"] .container {
+            background: rgba(8, 16, 34, 0.45);
+            backdrop-filter: blur(56px) saturate(190%);
+            -webkit-backdrop-filter: blur(56px) saturate(190%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow:
+                0 30px 90px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.16),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        html[data-theme="dark"] .content {
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .header {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.42) 0%, rgba(8, 145, 178, 0.32) 100%);
+            backdrop-filter: blur(32px) saturate(170%);
+            -webkit-backdrop-filter: blur(32px) saturate(170%);
+        }
+
+        html[data-theme="dark"] .header .header-badge, html[data-theme="dark"] .back-link {
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+        }
+
+        html[data-theme="dark"] .notice {
+            background: rgba(37, 99, 235, 0.14);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            color: #93c5fd;
+        }
+
+        html[data-theme="dark"] .cors-notice {
+            background: rgba(245, 158, 11, 0.09);
+            border: 1px solid rgba(245, 158, 11, 0.28);
+            color: #fcd34d;
+        }
+
+        html[data-theme="dark"] .cors-notice a {
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .cors-notice a:hover {
+            color: #bae6fd;
+        }
+
+        html[data-theme="dark"] .cors-proxy-section {
+            background: rgba(245, 158, 11, 0.06);
+            border: 1px solid rgba(245, 158, 11, 0.22);
+        }
+
+        html[data-theme="dark"] .cors-proxy-section .cors-proxy-toggle {
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .cors-proxy-section .cors-proxy-warning {
+            color: #f87171;
+        }
+
+        html[data-theme="dark"] .cors-proxy-picker-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #e2e8f0;
+        }
+
+        html[data-theme="dark"] .cors-proxy-picker-btn:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        html[data-theme="dark"] .cors-proxy-custom-name {
+            color: #94a3b8;
+        }
+
+        html[data-theme="dark"] .site-card, html[data-theme="dark"] .cloud-section, html[data-theme="dark"] .import-section, html[data-theme="dark"] .result-section {
+            background: rgba(12, 22, 44, 0.38);
+            backdrop-filter: blur(36px) saturate(180%);
+            -webkit-backdrop-filter: blur(36px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow:
+                0 10px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14),
+                inset 0 2px 8px rgba(255, 255, 255, 0.04),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        html[data-theme="dark"] .site-card:hover {
+            border-color: rgba(125, 211, 252, 0.4);
+            box-shadow:
+                0 16px 50px rgba(14, 165, 233, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                inset 0 2px 8px rgba(255, 255, 255, 0.05);
+        }
+
+        html[data-theme="dark"] .site-card::before {
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(125, 211, 252, 0.1) 0%, transparent 60%);
+        }
+
+        html[data-theme="dark"] .site-header {
+            background: rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme="dark"] .site-title {
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .site-title::before {
+            background: linear-gradient(180deg, #38bdf8, #2563eb);
+        }
+
+        html[data-theme="dark"] .accounts-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme="dark"] .accounts-label {
+            color: #94a3b8;
+        }
+
+        html[data-theme="dark"] .form-group label {
+            color: #cbd5e1;
+            text-shadow: none;
+        }
+
+        html[data-theme="dark"] .form-group label .required {
+            color: #f87171;
+        }
+
+        html[data-theme="dark"] .form-group input {
+            background: rgba(4, 10, 24, 0.45);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #f1f5f9;
+            box-shadow:
+                inset 0 1px 2px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme="dark"] .form-group input::placeholder {
+            color: #5b6b84;
+        }
+
+        html[data-theme="dark"] .form-group input:hover {
+            border-color: rgba(255, 255, 255, 0.28);
+            background: rgba(4, 10, 24, 0.55);
+        }
+
+        html[data-theme="dark"] .form-group input:focus {
+            border-color: rgba(125, 211, 252, 0.75);
+            background: rgba(4, 10, 24, 0.6);
+            box-shadow:
+                0 0 0 4px rgba(56, 189, 248, 0.18),
+                0 4px 20px rgba(14, 165, 233, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        }
+
+        html[data-theme="dark"] .form-group small {
+            color: #94a3b8;
+            text-shadow: none;
+        }
+
+        html[data-theme="dark"] .form-group input[id*="acc-access-token"] {
+            border-color: rgba(56, 189, 248, 0.45);
+            background: rgba(14, 116, 180, 0.14);
+        }
+
+        html[data-theme="dark"] .form-group input[id*="acc-access-token"]:hover {
+            border-color: rgba(56, 189, 248, 0.7);
+            background: rgba(14, 116, 180, 0.22);
+        }
+
+        html[data-theme="dark"] .form-group input[id*="acc-access-token"]:focus {
+            border-color: rgba(125, 211, 252, 0.85);
+            background: rgba(14, 116, 180, 0.26);
+            box-shadow:
+                0 0 0 4px rgba(56, 189, 248, 0.22),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        html[data-theme="dark"] .url-jump-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .url-jump-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: rgba(125, 211, 252, 0.5);
+            color: #bae6fd;
+        }
+
+        html[data-theme="dark"] .account-item {
+            background: rgba(6, 13, 28, 0.32);
+            backdrop-filter: blur(28px) saturate(170%);
+            -webkit-backdrop-filter: blur(28px) saturate(170%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 2px 5px rgba(255, 255, 255, 0.03),
+                0 2px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        html[data-theme="dark"] .account-item:hover {
+            border-color: rgba(125, 211, 252, 0.38);
+            background: rgba(10, 20, 42, 0.42);
+        }
+
+        html[data-theme="dark"] .account-item-title {
+            color: #7dd3fc;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        html[data-theme="dark"] .btn-primary {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.78) 0%, rgba(14, 165, 233, 0.78) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            box-shadow:
+                0 8px 28px rgba(14, 165, 233, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        html[data-theme="dark"] .btn-primary:hover {
+            box-shadow:
+                0 12px 40px rgba(14, 165, 233, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.55);
+        }
+
+        html[data-theme="dark"] .btn-success {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.78) 0%, rgba(16, 185, 129, 0.78) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            box-shadow:
+                0 8px 28px rgba(16, 185, 129, 0.32),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        html[data-theme="dark"] .btn-secondary {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #e2e8f0;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.14),
+                0 2px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        html[data-theme="dark"] .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.32);
+            color: #ffffff;
+        }
+
+        html[data-theme="dark"] .btn-danger {
+            background: rgba(248, 113, 113, 0.12);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            color: #fca5a5;
+        }
+
+        html[data-theme="dark"] .btn-danger:hover {
+            background: rgba(248, 113, 113, 0.24);
+            border-color: rgba(248, 113, 113, 0.55);
+        }
+
+        html[data-theme="dark"] .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .copy-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: rgba(125, 211, 252, 0.5);
+            color: #bae6fd;
+        }
+
+        html[data-theme="dark"] .tips {
+            background: rgba(245, 158, 11, 0.07);
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+            border: 1px solid rgba(245, 158, 11, 0.26);
+            border-left: 3px solid rgba(245, 158, 11, 0.65);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        html[data-theme="dark"] .tips h4 {
+            color: #fbbf24;
+        }
+
+        html[data-theme="dark"] .tips ul {
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .tips code {
+            background: rgba(56, 189, 248, 0.12);
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .result-section {
+            border-top: 2px solid rgba(56, 189, 248, 0.55);
+        }
+
+        html[data-theme="dark"] .result-section h3 {
+            color: #f1f5f9;
+        }
+
+        html[data-theme="dark"] .code-block {
+            background: rgba(2, 8, 22, 0.62);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow:
+                0 10px 40px rgba(0, 0, 0, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        html[data-theme="dark"] .tabs {
+            background: rgba(4, 10, 24, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        }
+
+        html[data-theme="dark"] .tab {
+            color: #94a3b8;
+        }
+
+        html[data-theme="dark"] .tab:hover {
+            color: #e2e8f0;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        html[data-theme="dark"] .tab.active {
+            background: rgba(255, 255, 255, 0.14);
+            color: #ffffff;
+            box-shadow:
+                0 2px 10px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        html[data-theme="dark"] .cloud-section {
+            background: rgba(6, 40, 32, 0.32);
+            border: 1px solid rgba(16, 185, 129, 0.22);
+        }
+
+        html[data-theme="dark"] .cloud-section h3 {
+            color: #34d399;
+        }
+
+        html[data-theme="dark"] .cloud-section h3::before {
+            background: #10b981;
+        }
+
+        html[data-theme="dark"] .cloud-preset-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .cloud-preset-btn:hover {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(52, 211, 153, 0.4);
+            color: #6ee7b7;
+        }
+
+        html[data-theme="dark"] .cloud-preset-btn.active {
+            background: rgba(16, 185, 129, 0.18);
+            border-color: rgba(52, 211, 153, 0.55);
+            color: #6ee7b7;
+        }
+
+        html[data-theme="dark"] .cloud-status.success {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.35);
+            color: #6ee7b7;
+        }
+
+        html[data-theme="dark"] .cloud-status.error {
+            background: rgba(248, 113, 113, 0.12);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            color: #fca5a5;
+        }
+
+        html[data-theme="dark"] .cloud-status.info {
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(125, 211, 252, 0.35);
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .import-section {
+            background: rgba(12, 22, 44, 0.38);
+            border: 1px solid rgba(125, 211, 252, 0.28);
+        }
+
+        html[data-theme="dark"] .import-section h3 {
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .import-section h3::before {
+            background: #38bdf8;
+        }
+
+        html[data-theme="dark"] .import-textarea {
+            background: rgba(4, 10, 24, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #f1f5f9;
+        }
+
+        html[data-theme="dark"] .import-textarea:focus {
+            border-color: rgba(125, 211, 252, 0.7);
+            background: rgba(4, 10, 24, 0.58);
+        }
+
+        html[data-theme="dark"] .footer {
+            background: rgba(2, 8, 22, 0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+        }
+
+        html[data-theme="dark"] .footer a {
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .footer a:hover {
+            color: #bae6fd;
+        }
+
+        html[data-theme="dark"] ::selection {
+            background: rgba(56, 189, 248, 0.32);
+        }
+
+        html[data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.26);
+        }
+
+        /* =======================================================
+           主题切换
+           ======================================================= */
+
+        html { color-scheme: light; }
+
+        html[data-theme="dark"] { color-scheme: dark; }
+
+        .theme-toggle {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            width: 46px;
+            height: 46px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(16px) saturate(170%);
+            -webkit-backdrop-filter: blur(16px) saturate(170%);
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow:
+                0 4px 16px rgba(15, 23, 42, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+            border-color: #ffffff;
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        html[data-theme="dark"] .theme-toggle {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.22);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                0 4px 16px rgba(0, 0, 0, 0.45);
+        }
+
+        .hint-amber { color: #b45309; }
+
+        html[data-theme="dark"] .hint-amber { color: #fbbf24; }
+
+        .btn-cloud { color: #059669; border-color: rgba(5, 150, 105, 0.35); }
+
+        html[data-theme="dark"] .btn-cloud { color: #34d399; border-color: rgba(52, 211, 153, 0.4); }
+
+        .btn-import { color: #2563eb; border-color: rgba(37, 99, 235, 0.35); }
+
+        html[data-theme="dark"] .btn-import { color: #7dd3fc; border-color: rgba(125, 211, 252, 0.4); }
+
+        .btn-clear { color: #dc2626; border-color: rgba(220, 38, 38, 0.35); }
+
+        html[data-theme="dark"] .btn-clear { color: #f87171; border-color: rgba(248, 113, 113, 0.4); }
+
+        /* 深色模式对比度修复 */
+
+        html[data-theme="dark"] .footer {
+            color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .footer a {
+            color: #7dd3fc;
+        }
+
+        html[data-theme="dark"] .footer a:hover {
+            color: #bae6fd;
+        }
+
+        html[data-theme="dark"] .feature h3 {
+            color: #7dd3fc;
+            text-shadow: none;
+        }
+
+        html[data-theme="dark"] .feature p {
+            color: #cbd5e1;
+        }
+
+        /* features-list 深色补充开始 */
+
+        html[data-theme="dark"] .feature {
+            background: rgba(12, 22, 44, 0.38);
+            backdrop-filter: blur(36px) saturate(180%);
+            -webkit-backdrop-filter: blur(36px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow:
+                0 10px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        html[data-theme="dark"] .feature:hover {
+            background: rgba(16, 30, 60, 0.45);
+            border-color: rgba(125, 211, 252, 0.4);
+        }
+
+        html[data-theme="dark"] .features-list li {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        html[data-theme="dark"] .features-list li:hover {
+            background: rgba(56, 189, 248, 0.12);
+            border-color: rgba(125, 211, 252, 0.4);
+        }
+
+
+        /* 窄屏下玻璃铺满全宽，消除两侧漏底 */
+
+        @media (max-width: 840px) {
+            body {
+                padding: 0;
+            }
+
+            .container {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+                border-top: none;
+            }
+
+            .theme-toggle {
+                top: 12px;
+                right: 12px;
+            }
+        }
     </style>
+<script>
+    // 主题切换：localStorage 记忆，两个页面共享
+    (function () {
+        var KEY = 'newapi_theme';
+        function apply(t) {
+            if (t === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            var b = document.getElementById('themeToggle');
+            if (b) { b.textContent = t === 'dark' ? '☀️' : '🌙'; }
+        }
+        apply(localStorage.getItem(KEY));
+        window.toggleTheme = function () {
+            var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            localStorage.setItem(KEY, t);
+            apply(t);
+        };
+    })();
+</script>
 </head>
 <body>
+<button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="切换深色 / 浅色主题">🌙</button>
     <div class="container">
         <div class="header">
             <div class="header-icon">🚀</div>
@@ -360,7 +1143,7 @@
         </div>
 
         <div class="footer">
-            <p>Made with ❤️ by <a href="https://github.com/Jasonliu-0/Newapi-checkin" target="_blank">Jasonliu-0</a></p>
+            <p>Made with ❤️ by <a href="https://github.com/Jasonliu-0/Newapi-checkin" target="_blank" style="display: inline-flex; align-items: center;"><svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style="vertical-align: -2px; margin-right: 4px;"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53 .63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Jasonliu-0</a></p>
         </div>
     </div>
 <script>
@@ -391,7 +1174,7 @@
                 const x = e.clientX - rect.left - rect.width / 2;
                 const y = e.clientY - rect.top - rect.height / 2;
                 btn.style.transform = `translate(${x / 8}px, ${y / 8 - 3}px)`;
-                btn.style.boxShadow = `0 ${10 + y / 4}px ${40 + Math.abs(x) / 2}px rgba(99, 102, 241, 0.45)`;
+                btn.style.boxShadow = `0 ${10 + y / 4}px ${40 + Math.abs(x) / 2}px rgba(37, 99, 235, 0.45)`;
             });
             btn.addEventListener('mouseleave', () => {
                 btn.style.transform = '';

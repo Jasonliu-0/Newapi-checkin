@@ -55,11 +55,21 @@ class CloudflareBypasser:
     (对应 Chrome 扩展在同一标签页中完成所有操作)
     """
 
-    def __init__(self, base_url: str, session_cookie: str = None, user_id: str = None):
+    def __init__(self, base_url: str, session_cookie: str = None, user_id: str = None, access_token: str = None):
         self.base_url = base_url.rstrip('/')
         self.session_cookie = session_cookie
         self.user_id = user_id
+        self.access_token = access_token
         self._playwright_available = self._check_playwright()
+
+    def _build_auth_headers(self) -> dict:
+        """构建认证请求头（new-api 支持 Authorization 访问令牌认证，不依赖 session cookie）"""
+        headers = {}
+        if self.access_token:
+            headers['Authorization'] = self.access_token
+        if self.user_id:
+            headers['New-Api-User'] = str(self.user_id)
+        return headers
 
     def _check_playwright(self) -> bool:
         try:
@@ -176,6 +186,38 @@ class CloudflareBypasser:
                 if self.user_id:
                     page.evaluate(f'() => localStorage.setItem("user", JSON.stringify({{"id": {self.user_id}}}))')
 
+                # 诊断: 打印浏览器当前携带的 cookie，确认 session 是否真的在
+                cookie_names = [c['name'] for c in context.cookies(self.base_url)]
+                print(f'[CF 诊断] 浏览器当前 cookies: {cookie_names}')
+
+                auth_headers = self._build_auth_headers()
+
+                # 认证预检: 用 /api/user/self 判断认证是否被后端接受
+                # （返回 JSON 说明请求已穿过 CF；401/无权 说明是凭证问题而非 CF 问题）
+                try:
+                    precheck = page.evaluate('''async (extraHeaders) => {
+                        try {
+                            const resp = await fetch('/api/user/self', {
+                                credentials: 'include',
+                                headers: extraHeaders
+                            });
+                            const text = await resp.text();
+                            let msg = text.substring(0, 120);
+                            try {
+                                const j = JSON.parse(text);
+                                msg = j.message || (j.success === true ? 'ok' : msg);
+                                return { status: resp.status, message: msg, success: j.success === true };
+                            } catch (e) {
+                                return { status: resp.status, message: msg, success: false, notJson: true };
+                            }
+                        } catch (e) {
+                            return { status: 0, message: e.message, success: false };
+                        }
+                    }''', auth_headers)
+                    print(f'[CF 诊断] 认证预检 /api/user/self: HTTP {precheck.get("status")} - {precheck.get("message")}')
+                except Exception as e:
+                    print(f'[CF 诊断] 认证预检执行失败: {e}')
+
                 try:
                     user_text = page.evaluate('() => localStorage.getItem("user")')
                     if not user_text and self.session_cookie:
@@ -186,35 +228,67 @@ class CloudflareBypasser:
                 except Exception:
                     pass
 
-                checkin_result = page.evaluate('''async () => {
-                    try {
-                        const resp = await fetch('/api/user/checkin', {
+                checkin_result = page.evaluate('''async (extraHeaders) => {
+                    const post = async (query) => {
+                        const resp = await fetch('/api/user/checkin' + query, {
                             method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
+                            headers: Object.assign({'Content-Type': 'application/json'}, extraHeaders),
                             credentials: 'include'
                         });
                         const text = await resp.text();
-                        try {
-                            const data = JSON.parse(text);
-                            const success = data.success === true || data.status === 'success' || data.ret === 1 || data.code === 0;
-                            const message = data.message || data.msg || data.data || '签到完成';
-                            const msgStr = typeof message === 'string' ? message : JSON.stringify(message);
-                            const alreadyKeywords = ['已签到', '已经签到', 'already', '重复签到'];
-                            const alreadyCheckedIn = !success && alreadyKeywords.some(k => msgStr.includes(k));
-                            return {
-                                success: success || alreadyCheckedIn,
-                                alreadyCheckedIn,
-                                message: msgStr,
-                                httpStatus: resp.status,
-                                data: data
-                            };
-                        } catch(e) {
-                            return { error: 'Response is not JSON: ' + text.substring(0, 200), httpStatus: resp.status, success: false };
+                        try { return {json: JSON.parse(text), status: resp.status}; }
+                        catch (e) { return {notJson: true, status: resp.status, text: text.substring(0, 200)}; }
+                    };
+                    // PoW 工作量证明：获取挑战并计算 nonce（SHA-256 前导零比特）
+                    const solvePoW = async () => {
+                        const r = await fetch('/api/user/pow/challenge?action=checkin', {
+                            credentials: 'include', headers: extraHeaders
+                        });
+                        const j = await r.json();
+                        if (!j.success) throw new Error(j.message || '获取 PoW 挑战失败');
+                        const {challenge_id, prefix, difficulty} = j.data;
+                        let n = 0;
+                        for (;;) {
+                            const nonce = n.toString(16).padStart(8, '0');
+                            const h = new Uint8Array(await crypto.subtle.digest('SHA-256',
+                                new TextEncoder().encode(prefix + nonce)));
+                            const full = Math.floor(difficulty / 8), rem = difficulty % 8;
+                            let ok = true;
+                            for (let i = 0; i < full; i++) if (h[i] !== 0) { ok = false; break; }
+                            if (ok && rem > 0 && (h[full] & (255 << (8 - rem))) !== 0) ok = false;
+                            if (ok) return {challenge_id, nonce};
+                            n++;
+                            if (n > 0xffffffff) throw new Error('超过最大尝试次数');
                         }
+                    };
+                    try {
+                        let res = await post('');
+                        if (res.json && res.json.message &&
+                            (res.json.message + '').toLowerCase().includes('pow')) {
+                            const pow = await solvePoW();
+                            res = await post('?pow_challenge=' + encodeURIComponent(pow.challenge_id) +
+                                             '&pow_nonce=' + encodeURIComponent(pow.nonce));
+                        }
+                        if (res.notJson) {
+                            return { error: 'Response is not JSON: ' + res.text, httpStatus: res.status, success: false };
+                        }
+                        const data = res.json;
+                        const success = data.success === true || data.status === 'success' || data.ret === 1 || data.code === 0;
+                        const message = data.message || data.msg || data.data || '签到完成';
+                        const msgStr = typeof message === 'string' ? message : JSON.stringify(message);
+                        const alreadyKeywords = ['已签到', '已经签到', 'already', '重复签到'];
+                        const alreadyCheckedIn = !success && alreadyKeywords.some(k => msgStr.includes(k));
+                        return {
+                            success: success || alreadyCheckedIn,
+                            alreadyCheckedIn,
+                            message: msgStr,
+                            httpStatus: res.status,
+                            data: data
+                        };
                     } catch(e) {
                         return { error: e.message, success: false, httpStatus: 0 };
                     }
-                }''')
+                }''', auth_headers)
 
                 print(f'[CF 绕过] 签到结果: {checkin_result.get("message", checkin_result.get("error", "unknown"))}')
 
