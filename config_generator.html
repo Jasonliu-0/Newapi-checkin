@@ -3948,6 +3948,7 @@
                 <button class="btn btn-secondary" onclick="saveToLocal()">💾 保存到本地</button>
                 <button class="btn btn-secondary" onclick="loadFromLocal()">📂 从本地加载</button>
                 <button class="btn btn-secondary btn-cloud" onclick="toggleCloudSync()">☁️ 云端同步</button>
+                <button class="btn btn-secondary btn-import" onclick="pasteImport()">📥 粘贴板导入</button>
                 <button class="btn btn-secondary btn-import" onclick="toggleImport()">📋 导入 JSON</button>
                 <button class="btn btn-secondary btn-clear" onclick="clearLocal()">🗑️ 清除本地数据</button>
             </div>
@@ -4140,6 +4141,28 @@
                 </ul>
             </div>
 
+            <div id="bookmark-section" class="cloud-section">
+                <h3>🧷 站点一键抓取书签</h3>
+                <p style="color: rgba(255,255,255,0.65); font-size: 13px; margin-bottom: 12px; line-height: 1.7;">
+                    把下面的书签拖到浏览器收藏夹。以后在任何已登录的 NewAPI 站点页面上点一下这个书签，
+                    就会自动抓取 <strong>站点地址、用户ID、系统访问令牌</strong>（现场生成新令牌，旧令牌自动作废），
+                    并自动打开本页面回填配置——全程无需 F12。
+                </p>
+                <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
+                    <a id="bookmarklet-link" href="#" onclick="return false;"
+                       style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 999px;
+                              background: linear-gradient(135deg, rgba(37,99,235,0.9), rgba(14,165,233,0.9)); color: #fff;
+                              text-decoration: none; font-weight: 600; font-size: 14px; cursor: grab;"
+                       title="把我拖到浏览器收藏夹">🧷 抓取签到配置</a>
+                    <button class="btn btn-secondary btn-sm" onclick="copyBookmarklet()">📋 复制书签代码</button>
+                </div>
+                <small style="color: #94a3b8; line-height: 1.6; display: block;">
+                    使用方法：① 把蓝色按钮拖到收藏夹栏（或点「复制书签代码」手动新建书签，网址粘贴代码）；
+                    ② 打开任意已登录的 NewAPI 站点；③ 点收藏夹里的书签，确认后自动回填本页。
+                    ⚠️ 注意：每次抓取会重新生成该站点的系统访问令牌，旧令牌将失效。
+                </small>
+            </div>
+
             <div id="result" class="result-section" style="display: none;">
                 <h3>📋 生成的配置</h3>
 
@@ -4314,6 +4337,99 @@
                 document.getElementById('simple-tab').classList.add('active');
             }
         }
+
+        // ─── 站点一键抓取书签 ─────────────────────────────────────
+
+        const BOOKMARKLET_SRC = [
+            "(function(){",
+            "var origin=location.origin;",
+            "var uid=null;",
+            "try{var u=JSON.parse(localStorage.getItem('user')||'null');if(u&&u.id)uid=u.id;}catch(e){}",
+            "var go=function(cfg){",
+            "try{navigator.clipboard.writeText(cfg);}catch(e){}",
+            "if(confirm('已抓取站点配置，点击确定打开本地配置页面并自动回填：')){",
+            "window.open('" + location.origin + location.pathname + "#bm='+encodeURIComponent(cfg),'_blank');",
+            "}",
+            "};",
+            "fetch(origin+'/api/user/self',{credentials:'include'})",
+            ".then(function(r){return r.json();})",
+            ".then(function(self){",
+            "if(self&&self.success&&self.data&&self.data.id){uid=self.data.id;}",
+            "return fetch(origin+'/api/user/token',{credentials:'include'}).then(function(r){return r.json();});",
+            "})",
+            ".then(function(tok){",
+            "var token=(tok&&tok.success&&tok.data)?tok.data:'';",
+            "var cfg=JSON.stringify([{url:origin,session:'',access_token:token,user_id:String(uid||''),name:location.hostname}]);",
+            "go(cfg);",
+            "})",
+            ".catch(function(e){alert('抓取失败: '+(e.message||e));});",
+            "})();"
+        ].join(' ');
+
+        function buildBookmarkletHref() {
+            return 'javascript:' + encodeURIComponent(BOOKMARKLET_SRC);
+        }
+
+        function copyBookmarklet() {
+            const code = decodeURIComponent(buildBookmarkletHref().replace(/^javascript:/, ''));
+            navigator.clipboard.writeText('javascript:' + code).then(() => {
+                showCloudStatus('success', '✅ 书签代码已复制：新建一个收藏夹书签，名称随意，网址粘贴这段代码');
+            }).catch(() => {
+                showCloudStatus('error', '❌ 复制失败，请手动展开下方代码复制');
+            });
+        }
+
+        function importFromData(accounts, sourceName) {
+            if (!Array.isArray(accounts) || !accounts.length) {
+                alert('⚠️ ' + sourceName + ' 中没有有效的账号数据');
+                return;
+            }
+            for (let i = 0; i < accounts.length; i++) {
+                const acc = accounts[i];
+                if (!acc.url || (!acc.session && !acc.access_token)) {
+                    alert(`⚠️ 第 ${i + 1} 个账号缺少 url，且 session 与 access_token 至少需要一个`);
+                    return;
+                }
+            }
+            loadFlatData(accounts);
+            saveToLocal();
+            alert(`✅ 已从${sourceName}回填 ${accounts.length} 个账号（表单已自动保存到本地）`);
+        }
+
+        function pasteImport() {
+            navigator.clipboard.readText().then(text => {
+                if (!text.trim()) { alert('⚠️ 剪贴板是空的'); return; }
+                try {
+                    importFromData(JSON.parse(text), '剪贴板');
+                } catch (e) {
+                    alert('❌ 剪贴板内容不是有效的 JSON：' + e.message);
+                }
+            }).catch(e => {
+                alert('❌ 无法读取剪贴板（浏览器可能未授权）：' + e.message + '\n可改用「📋 导入 JSON」手动粘贴');
+            });
+        }
+
+        // 书签回填：#bm=<URL编码的账号JSON>
+        (function handleBookmarkHash() {
+            const m = (location.hash || '').match(/^#bm=(.+)$/);
+            if (!m) return;
+            try {
+                const accounts = JSON.parse(decodeURIComponent(m[1]));
+                loadFlatData(accounts);
+                saveToLocal();
+                alert(`🧷 已从书签抓取回填 ${accounts.length} 个账号，令牌已就绪`);
+            } catch (e) {
+                alert('❌ 书签数据解析失败：' + e.message);
+            } finally {
+                history.replaceState(null, '', location.pathname);
+            }
+        })();
+
+        // 初始化书签链接
+        (function initBookmarklet() {
+            const link = document.getElementById('bookmarklet-link');
+            if (link) link.href = buildBookmarkletHref();
+        })();
 
         function generateConfig() {
             const accounts = [];
