@@ -1,0 +1,34 @@
+name: Turnstile 签到测试 (GHA)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  checkin-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 安装 Playwright 浏览器
+        run: playwright install chromium --with-deps
+
+      - name: 确认 Chrome 与 xvfb
+        run: |
+          google-chrome --version
+          which xvfb-run || (sudo apt-get update && sudo apt-get install -y xvfb)
+
+      - name: 执行签到（xvfb 虚拟显示，含 Turnstile 解验证）
+        env:
+          NEWAPI_ACCOUNTS: ${{ secrets.NEWAPI_ACCOUNTS }}
+        run: xvfb-run --auto-servernum python checkin.py
