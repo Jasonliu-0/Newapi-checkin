@@ -446,10 +446,12 @@ class NewAPICheckin:
             result['message'] = f'CF 绕过后签到失败: {browser_result["error"]}'
             return result
 
-        # CF 绕过后仍要求 Turnstile 人机验证 -> 走真实浏览器解验证
-        bypass_message = str(browser_result.get('message', '') or '')
-        if 'turnstile' in bypass_message.lower():
-            print('[CF] 绕过后站点要求 Turnstile 人机验证，切换求解器...')
+        # CF 绕过后 POST 仍被拦截（要求 Turnstile / CF 挑战 HTML）→ 走真实浏览器求解器
+        bypass_combined = (str(browser_result.get('message', '') or '') + ' ' +
+                           str(browser_result.get('error', '') or '')).lower()
+        if ('turnstile' in bypass_combined or 'response is not json' in bypass_combined
+                or 'just a moment' in bypass_combined):
+            print('[CF] 绕过后 POST 仍被 CF 拦截或要求 Turnstile，切换真实浏览器求解器...')
             return self._turnstile_checkin(result)
 
         if browser_result.get('alreadyCheckedIn'):
