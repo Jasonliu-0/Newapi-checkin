@@ -135,20 +135,38 @@ def _launch_chrome(proxy=None, url=None):
         raise RuntimeError('未找到 Chrome 浏览器，无法通过 Turnstile 验证')
     dbg_port = _free_port()
     udd = tempfile.mkdtemp(prefix='ts_solver_')
+    chrome_log = tempfile.NamedTemporaryFile(prefix='chrome_', suffix='.log', delete=False)
     args = [
         chrome,
         f'--remote-debugging-port={dbg_port}',
         f'--user-data-dir={udd}',
         '--no-first-run', '--no-default-browser-check',
         '--no-sandbox', '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--remote-allow-origins=*',
         '--window-size=700,500',
     ]
     if proxy:
         args.append(f'--proxy-server={proxy}')
     args.append(url or 'about:blank')
-    proc = subprocess.Popen(args)
-    time.sleep(4)
-    return proc, dbg_port
+    proc = subprocess.Popen(args, stdout=chrome_log, stderr=chrome_log)
+
+    # 轮询等待 CDP 端口就绪（冷启动可能远超 4 秒，固定 sleep 会 ECONNREFUSED）
+    import socket as _socket
+    deadline = time.time() + 40
+    while time.time() < deadline:
+        if proc.poll() is not None:
+            chrome_log.flush()
+            with open(chrome_log.name, errors='ignore') as lf:
+                tail = lf.read()[-400:]
+            raise RuntimeError(f'Chrome 启动失败（退出码 {proc.returncode}）：{tail}')
+        try:
+            with _socket.create_connection(('127.0.0.1', dbg_port), timeout=2):
+                time.sleep(0.5)
+                return proc, dbg_port
+        except OSError:
+            time.sleep(0.5)
+    raise RuntimeError('等待 Chrome CDP 端口超时（40s）')
 
 
 def _solve_in_page(page, sitekey, max_wait=90, verbose=True):
@@ -245,7 +263,17 @@ def solve_and_checkin(base_url: str, sitekey: str = None, auth_headers: dict = N
     try:
         from playwright.sync_api import sync_playwright
         with sync_playwright() as p:
-            browser = p.chromium.connect_over_cdp(f'http://127.0.0.1:{dbg_port}')
+            browser = None
+            last_err = None
+            for _ in range(3):
+                try:
+                    browser = p.chromium.connect_over_cdp(f'http://127.0.0.1:{dbg_port}')
+                    break
+                except Exception as e:
+                    last_err = e
+                    time.sleep(3)
+            if browser is None:
+                raise RuntimeError(f'CDP 连接失败: {last_err}')
             ctx = browser.contexts[0]
             page = ctx.pages[0] if ctx.pages else ctx.new_page()
 
@@ -316,7 +344,17 @@ def get_turnstile_token(sitekey: str, proxy: str = None, max_wait: int = 90, ver
         proc, dbg_port = _launch_chrome(proxy, url=f'http://127.0.0.1:{port_http}/')
         from playwright.sync_api import sync_playwright
         with sync_playwright() as p:
-            browser = p.chromium.connect_over_cdp(f'http://127.0.0.1:{dbg_port}')
+            browser = None
+            last_err = None
+            for _ in range(3):
+                try:
+                    browser = p.chromium.connect_over_cdp(f'http://127.0.0.1:{dbg_port}')
+                    break
+                except Exception as e:
+                    last_err = e
+                    time.sleep(3)
+            if browser is None:
+                raise RuntimeError(f'CDP 连接失败: {last_err}')
             ctx = browser.contexts[0]
             page = ctx.pages[0] if ctx.pages else ctx.new_page()
             token = _solve_in_page(page, sitekey, max_wait=max_wait, verbose=verbose)
