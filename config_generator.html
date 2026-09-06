@@ -4828,19 +4828,27 @@
             const titleEl = document.getElementById('cors-notice-title');
             const tipsEl = document.getElementById('cors-notice-tips');
             const isChrome = /Chrome\//.test(navigator.userAgent) && !/Edg\//.test(navigator.userAgent);
+            const isLocal = ['127.0.0.1', 'localhost'].includes(window.location.hostname);
 
-            if (protocol === 'file:') {
+            if (isLocal) {
+                // 本地 serve.py 模式：云端请求走同源代理，无 CORS 限制
+                noticeEl.className = 'notice';
+                noticeEl.querySelector('.cors-icon').textContent = '✅';
+                noticeEl.style.display = 'flex';
+                titleEl.innerHTML = '本地模式：云端同步已通过 <strong>serve.py 代理</strong>直连 WebDAV，无 CORS 限制。';
+                tipsEl.innerHTML = '直接填写 WebDAV 地址和认证信息即可同步；也可以用 <strong>sync_config.py</strong> 命令行推拉配置。';
+            } else if (protocol === 'file:') {
                 if (isChrome) {
                     noticeEl.style.display = 'flex';
                     titleEl.textContent = 'Chrome 本地打开仍受跨域限制，无法直接请求 HTTPS 地址。';
-                    tipsEl.innerHTML = '推荐在云端同步中启用 <strong>CORS 代理</strong>，或使用 <strong>Firefox</strong> 浏览器打开本文件（Firefox 允许 file:// 跨域请求）。';
+                    tipsEl.innerHTML = '推荐运行 <strong>python serve.py</strong> 后从 127.0.0.1:8765 打开本页（本地代理，无 CORS），或在云端同步中启用 <strong>CORS 代理</strong>，或使用 <strong>Firefox</strong> 打开本文件。';
                 } else {
                     noticeEl.style.display = 'none';
                 }
             } else {
                 noticeEl.style.display = 'flex';
                 titleEl.textContent = '当前页面以网络协议运行，云端同步受 CORS 跨域限制。';
-                tipsEl.innerHTML = '推荐在云端同步中启用 <strong>CORS 代理</strong>，或 <a href="javascript:void(0)" onclick="downloadThisPage()" style="color:#0284c7;">下载到本地</a>后用 <strong>Firefox</strong> 打开。群晖/NextCloud 可在服务端配置 CORS 头。';
+                tipsEl.innerHTML = '推荐运行 <strong>python serve.py</strong> 后从 127.0.0.1:8765 打开本页（本地代理，无 CORS），或 <a href="javascript:void(0)" onclick="downloadThisPage()" style="color:#0284c7;">下载到本地</a>。群晖/NextCloud 可在服务端配置 CORS 头。';
             }
         })();
 
