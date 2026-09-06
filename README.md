@@ -1296,6 +1296,36 @@ MIT License
 
 ---
 
+## 🙏 致谢
+
+- [QuantumNous/new-api](https://github.com/QuantumNous/new-api) —— 本项目所对接的上游网关系统
+- 所有通过 Issue、PR 和 Fork 参与改进的贡献者
+- 感谢 [newapi-ai-check-in](https://github.com/aceHubert/newapi-ai-check-in) 等同类项目提供的思路参考
+
+---
+
+## ⚠️ 免责声明
+
+1. 本项目仅供学习交流和个人自动化使用，请遵守目标站点的服务条款
+2. 请合理使用签到功能，不要对站点造成过大访问压力（脚本已内置限流处理）
+3. 使用本项目产生的任何账号风险（封号、降权等）由使用者自行承担
+4. 请勿将本项目用于任何商业用途或恶意场景
+5. 本项目不存储、不上传任何用户的凭证信息至开发者服务器——所有配置均保存在用户自己的环境（本地 `.env`、GitHub Secrets 或用户自己的 WebDAV）中
+
+---
+
+## ⭐ 支持项目
+
+如果这个项目对你有帮助，欢迎点一个 **Star** ⭐ 支持一下！
+
+你也可以通过以下方式支持：
+
+- 🐛 提交 [Issue](https://github.com/Jasonliu-0/Newapi-checkin/issues) 反馈问题或建议新功能
+- 🔀 提交 Pull Request 改进代码
+- 📢 推荐给有需要的朋友
+
+---
+
 ## 📮 反馈
 
 如有问题或建议，请提交 [Issue](https://github.com/Jasonliu-0/Newapi-checkin/issues)。
