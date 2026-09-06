@@ -207,6 +207,8 @@ def build_checkin_report(results: List[Dict[str, Any]], execution_time: str) -> 
             if r.get('session_expired') or 'session' in message.lower() or '认证' in message or '过期' in message:
                 message = f'⚠️ {message}'
             lines.append(f'| {name} | {message} |')
+            if r.get('advice'):
+                lines.append(f'> 💡 {r["advice"]}')
         lines.append('')
     
     # 汇总

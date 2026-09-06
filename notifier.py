@@ -61,6 +61,8 @@ def build_report_text(results: List[Dict[str, Any]], execution_time: str) -> str
             if r.get('session_expired') or 'session' in message.lower() or '认证' in message:
                 message = f'[Session失效] {message}'
             lines.append(f'  {name} | {message}')
+            if r.get('advice'):
+                lines.append(f'  💡 建议: {r["advice"]}')
         lines.append('')
 
     lines.append('-' * 40)
@@ -117,6 +119,9 @@ def build_report_html(results: List[Dict[str, Any]], execution_time: str) -> str
                 message = f'⚠️ {message}'
             rows += f'<tr><td style="padding:4px 10px;">{name}</td>'
             rows += f'<td colspan="2" style="padding:4px 10px;color:#e53e3e;">{message}</td></tr>'
+            if r.get('advice'):
+                rows += (f'<tr><td colspan="3" style="padding:2px 10px 6px;color:#718096;font-size:12px;">'
+                         f'💡 {r["advice"]}</td></tr>')
 
     total = len(results)
     success_count = len(success_list)

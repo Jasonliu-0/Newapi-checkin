@@ -3947,6 +3947,27 @@
                 right: 12px;
             }
         }
+
+        /* 站点防护探测 */
+
+        .protect-probe {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #475569;
+        }
+
+        html[data-theme="dark"] .protect-probe {
+            color: #94a3b8;
+        }
+
+        .protect-chip {
+            display: inline-block;
+            padding: 3px 10px;
+            margin: 2px 4px 2px 0;
+            border-radius: 999px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+        }
         </style>
 
         <div class="content">
@@ -3970,6 +3991,7 @@
                 <button class="btn btn-secondary btn-cloud" onclick="toggleCloudSync()">☁️ 云端同步</button>
                 <button class="btn btn-secondary btn-import" onclick="pasteImport()">📥 粘贴板导入</button>
                 <button class="btn btn-secondary btn-import" onclick="toggleImport()">📋 导入 JSON</button>
+                <button class="btn btn-secondary" onclick="window.open('dashboard.html', '_blank')">📊 签到历史</button>
                 <button class="btn btn-secondary btn-clear" onclick="clearLocal()">🗑️ 清除本地数据</button>
             </div>
 
@@ -4179,8 +4201,14 @@
                 <small style="color: #94a3b8; line-height: 1.6; display: block;">
                     使用方法：① 把蓝色按钮拖到收藏夹栏（或点「复制书签代码」手动新建书签，网址粘贴代码）；
                     ② 打开任意已登录的 NewAPI 站点；③ 点收藏夹里的书签，确认后自动回填本页。
+                    💡 支持多站点：连续去多个站点点书签，抓取结果会累计暂存并一起回填。
                     ⚠️ 注意：每次抓取会重新生成该站点的系统访问令牌，旧令牌将失效。
                 </small>
+                <div id="bm-stash-info" style="margin-top: 12px; font-size: 13px; color: #475569;">📭 暂存区为空</div>
+                <div style="margin-top: 8px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-secondary btn-sm" id="bm-refill-btn" style="display: none;" onclick="refillBookmarkStash()">📋 回填暂存站点</button>
+                    <button class="btn btn-secondary btn-sm" id="bm-clear-btn" style="display: none;" onclick="clearBookmarkStash()">🧹 清空暂存</button>
+                </div>
             </div>
 
             <div id="result" class="result-section" style="display: none;">
@@ -4430,14 +4458,64 @@
         }
 
         // 书签回填：#bm=<URL编码的账号JSON>
+        // 多站点暂存：每次抓取按 url 合并进 localStorage 暂存区，
+        // 表单回填全部暂存站点——可以连续去多个站点点书签再一起保存
+        const BM_STASH_KEY = 'newapi_bm_stash';
+
+        function loadBookmarkStash() {
+            try { return JSON.parse(localStorage.getItem(BM_STASH_KEY) || '[]'); }
+            catch (e) { return []; }
+        }
+
+        function saveBookmarkStash(stash) {
+            localStorage.setItem(BM_STASH_KEY, JSON.stringify(stash.slice(-12)));
+        }
+
+        function updateBookmarkStashUI() {
+            const stash = loadBookmarkStash();
+            const info = document.getElementById('bm-stash-info');
+            if (!info) return;
+            if (!stash.length) {
+                info.innerHTML = '📭 暂存区为空：去任意已登录的 NewAPI 站点点击书签即可抓取';
+                document.getElementById('bm-refill-btn').style.display = 'none';
+                document.getElementById('bm-clear-btn').style.display = 'none';
+            } else {
+                const names = stash.map(a => a.name || a.url.replace(/^https?:\/\//, '')).join('、');
+                info.innerHTML = `📦 暂存 <strong>${stash.length}</strong> 个站点：${names}`;
+                document.getElementById('bm-refill-btn').style.display = '';
+                document.getElementById('bm-clear-btn').style.display = '';
+            }
+        }
+
+        function refillBookmarkStash() {
+            const stash = loadBookmarkStash();
+            if (!stash.length) { alert('📭 暂存区为空：先去站点上点书签抓取'); return; }
+            importFromData(stash, '抓取暂存');
+        }
+
+        function clearBookmarkStash() {
+            if (!confirm('确定清空抓取暂存？不影响已保存的配置')) return;
+            localStorage.removeItem(BM_STASH_KEY);
+            updateBookmarkStashUI();
+        }
+
         (function handleBookmarkHash() {
             const m = (location.hash || '').match(/^#bm=(.+)$/);
-            if (!m) return;
+            if (!m) { updateBookmarkStashUI(); return; }
+            let stash = loadBookmarkStash();
             try {
-                const accounts = JSON.parse(decodeURIComponent(m[1]));
-                loadFlatData(accounts);
+                const fresh = JSON.parse(decodeURIComponent(m[1]));
+                let added = 0, updated = 0;
+                fresh.forEach(acc => {
+                    if (!acc.url) return;
+                    const i = stash.findIndex(x => x.url === acc.url);
+                    if (i >= 0) { stash[i] = acc; updated++; } else { stash.push(acc); added++; }
+                });
+                localStorage.setItem(BM_STASH_KEY, JSON.stringify(stash.slice(-12)));
+                loadFlatData(stash);
                 saveToLocal();
-                alert(`🧷 已从书签抓取回填 ${accounts.length} 个账号，令牌已就绪`);
+                updateBookmarkStashUI();
+                alert(`🧷 书签抓取完成：新增 ${added} 个、更新 ${updated} 个站点，暂存共 ${stash.length} 个已全部回填表单`);
             } catch (e) {
                 alert('❌ 书签数据解析失败：' + e.message);
             } finally {
@@ -4450,6 +4528,57 @@
             const link = document.getElementById('bookmarklet-link');
             if (link) link.href = buildBookmarkletHref();
         })();
+
+        // ─── 站点防护探测 ─────────────────────────────────────
+
+        function probeSiteProtection(siteId) {
+            const urlInput = document.getElementById(`site-url-${siteId}`);
+            const card = document.getElementById(`site-${siteId}`);
+            if (!urlInput || !card) return;
+            const raw = urlInput.value.trim();
+            if (!raw) return;
+            const full = raw.startsWith('http') ? raw : 'https://' + raw;
+
+            let box = card.querySelector('.protect-probe');
+            if (!box) {
+                box = document.createElement('div');
+                box.className = 'protect-probe';
+                const body = card.querySelector('.site-body') || card;
+                body.appendChild(box);
+            }
+            box.style.display = 'block';
+            box.innerHTML = '🔍 正在探测站点防护（/api/status）...';
+
+            cloudFetch(full + '/api/status', {method: 'GET'})
+                .then(async r => {
+                    const text = await r.text();
+                    let data;
+                    try {
+                        data = JSON.parse(text).data || {};
+                        if (!Object.keys(data).length) throw new Error('空数据');
+                    } catch (e) {
+                        throw new Error('响应异常（可能被 CF 拦截或地址不可达）');
+                    }
+                    const chips = ['浏览器可达 ✅'];
+                    chips.push(data.turnstile_check ? 'Turnstile ✅' : 'Turnstile ❌');
+                    if (data.pow_enabled) chips.push(`PoW ✅ (模式: ${data.pow_mode || 'replace'})`);
+                    if (data.pow_enabled && data.turnstile_check && data.pow_mode === 'replace') {
+                        chips.push('→ PoW 替代 Turnstile');
+                    }
+                    if (data.checkin_enabled === false) chips.push('⚠️ 签到功能未开启');
+                    box.innerHTML = '🛡️ 该站防护: ' + chips.map(s => `<span class="protect-chip">${s}</span>`).join(' ');
+                })
+                .catch(e => {
+                    box.innerHTML = `🛡️ 探测失败: ${e.message}（github.io 上受 CORS 限制，请用本地 serve.py 打开）`;
+                });
+        }
+
+        // 站点 URL 填写/修改后自动探测
+        document.addEventListener('change', function (e) {
+            if (e.target && /^site-url-\d+$/.test(e.target.id || '')) {
+                probeSiteProtection(e.target.id.split('-')[2]);
+            }
+        });
 
         function generateConfig() {
             const accounts = [];

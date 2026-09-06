@@ -737,6 +737,25 @@ def load_env_file():
                     os.environ.setdefault(key, value)
 
 
+def build_advice(message: str) -> str:
+    """根据失败消息生成排查建议（随通知推送）"""
+    m = message.lower()
+    if 'turnstile' in m:
+        return ('该站开启 Turnstile 人机验证，已自动点击求解；若反复失败，'
+                '建议本地运行一次 python checkin.py')
+    if 'just a moment' in m or 'cloudflare' in m or m.startswith('cf'):
+        return ('CF 网络层拦截未能通过（数据中心 IP 可能被限制），'
+                '建议本地运行一次 python checkin.py（自动走系统代理出口）')
+    if 'pow' in m:
+        return 'PoW 工作量证明解算异常，建议直接重试一次；持续失败请把日志发给维护者'
+    if 'access token' in m or 'token 无效' in m or '认证失败' in m or '无权' in m:
+        return ('请在站点「个人设置」重新生成系统访问令牌并更新配置'
+                '（更新后可运行 python sync_config.py push 同步到云端）')
+    if 'session' in m or '过期' in m:
+        return 'Session 已失效：可配置账号密码自动续期，或改用系统访问令牌（推荐）'
+    return ''
+
+
 def main():
     """主函数"""
     load_env_file()
@@ -912,11 +931,15 @@ def main():
 
             # 收集结果用于钉钉通知
             message = result.get('message', '')
+            advice = build_advice(message)
+            if advice:
+                print(f'  💡 建议: {advice}')
             account_result = {
                 'name': name,
                 'success': False,
                 'message': message,
-                'session_expired': 'session' in message.lower() or '认证' in message
+                'session_expired': 'session' in message.lower() or '认证' in message,
+                'advice': advice
             }
             checkin_results.append(account_result)
 
@@ -927,22 +950,28 @@ def main():
     print(f'签到完成: 成功 {success_count}, 失败 {fail_count}')
     print('=' * 50)
     
-    # 发送钉钉通知
-    if send_checkin_notification:
+    # 通知发送（NOTIFY_ONLY_FAILURE=1 时全部成功则跳过）
+    notify_only_fail = os.environ.get('NOTIFY_ONLY_FAILURE', '').strip().lower() in ('1', 'true', 'yes')
+    if notify_only_fail and fail_count == 0:
+        print('\n[通知] 全部签到成功，已开启「仅失败时推送」，跳过通知')
+    elif True:
+        pass
+
+    if send_checkin_notification and not (notify_only_fail and fail_count == 0):
         print('正在发送钉钉通知...')
         send_checkin_notification(checkin_results, execution_time)
     elif os.environ.get('DINGTALK_WEBHOOK'):
         print('[警告] 已配置 DINGTALK_WEBHOOK 但无法导入通知模块')
 
     # 发送邮件通知
-    if send_email_notification and os.environ.get('EMAIL_SMTP_HOST'):
+    if send_email_notification and os.environ.get('EMAIL_SMTP_HOST') and not (notify_only_fail and fail_count == 0):
         print('正在发送邮件通知...')
         send_email_notification(checkin_results, execution_time)
     elif os.environ.get('EMAIL_SMTP_HOST'):
         print('[警告] 已配置邮件参数但无法导入通知模块')
 
     # 发送 ServerChan 通知
-    if send_serverchan_notification:
+    if send_serverchan_notification and not (notify_only_fail and fail_count == 0):
         print('正在发送 ServerChan 通知...')
         send_serverchan_notification(checkin_results, execution_time)
     elif os.environ.get('SERVERCHAN_SENDKEY'):
