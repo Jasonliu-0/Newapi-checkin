@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>签到历史仪表盘</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(160deg, #dbeafe 0%, #e0f2fe 35%, #cffafe 65%, #e0e7ff 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.32);
+            backdrop-filter: blur(52px) saturate(200%);
+            -webkit-backdrop-filter: blur(52px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            border-radius: 24px;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.68) 0%, rgba(14, 165, 233, 0.55) 100%);
+            backdrop-filter: blur(28px) saturate(160%);
+            color: #fff;
+            padding: 34px 30px;
+            text-align: center;
+        }
+
+        .header h1 { font-size: 26px; margin-bottom: 8px; text-shadow: 0 2px 24px rgba(255,255,255,0.35); }
+
+        .header p { opacity: 0.9; font-size: 14px; }
+
+        .theme-toggle {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            width: 46px;
+            height: 46px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(16px) saturate(170%);
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 9999;
+            box-shadow: 0 4px 16px rgba(15,23,42,0.14), inset 0 1px 0 rgba(255,255,255,0.95);
+            transition: all 0.3s;
+        }
+
+        html[data-theme="dark"] .theme-toggle {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.22);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 16px rgba(0,0,0,0.45);
+        }
+
+        .content { padding: 26px 30px; }
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .toolbar input[type="month"] {
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.55);
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        html[data-theme="dark"] body { background: linear-gradient(170deg, #030814 0%, #061021 40%, #04101f 70%, #020a18 100%); color: #cbd5e1; }
+        html[data-theme="dark"] .container { background: rgba(8,16,34,0.45); border-color: rgba(255,255,255,0.14); }
+        html[data-theme="dark"] .toolbar input[type="month"] { background: rgba(4,10,24,0.45); border-color: rgba(255,255,255,0.14); color: #f1f5f9; }
+        html[data-theme="dark"] .card { background: rgba(12,22,44,0.38); border-color: rgba(255,255,255,0.12); }
+        html[data-theme="dark"] .card h3 { color: #7dd3fc; }
+        html[data-theme="dark"] .stat-chip { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.25); color: #7dd3fc; }
+        html[data-theme="dark"] .rec-row { color: #cbd5e1; }
+        html[data-theme="dark"] .bar { background: linear-gradient(90deg, #0ea5e9, #22d3ee); }
+        html[data-theme="dark"] .bar-label { color: #94a3b8; }
+        html[data-theme="dark"] .hint-box { color: #94a3b8; }
+        html[data-theme="dark"] .card-err { color: #fca5a5; }
+        html[data-theme="dark"] .btn { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.16); color: #e2e8f0; }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.75);
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(16px) saturate(150%);
+            color: #1e293b;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover { background: rgba(255,255,255,0.75); border-color: #fff; }
+        .btn.primary {
+            background: linear-gradient(135deg, rgba(37,99,235,0.9), rgba(14,165,233,0.9));
+            color: #fff;
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        .card {
+            background: rgba(255,255,255,0.3);
+            backdrop-filter: blur(32px) saturate(180%);
+            -webkit-backdrop-filter: blur(32px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.75);
+            border-radius: 16px;
+            padding: 20px 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,1);
+        }
+
+        .card h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+            color: #1e40af;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .card .url { font-size: 12px; color: #94a3b8; font-weight: 400; }
+
+        .stat-chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 16px; }
+
+        .stat-chip {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            background: rgba(37,99,235,0.08);
+            border: 1px solid rgba(37,99,235,0.22);
+            color: #1d4ed8;
+        }
+
+        .stat-chip.ok { background: rgba(5,150,105,0.1); border-color: rgba(5,150,105,0.3); color: #047857; }
+
+        .rec-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .bar-label { width: 88px; color: #64748b; flex-shrink: 0; }
+
+        .bar-track { flex: 1; height: 14px; background: rgba(15,23,42,0.06); border-radius: 7px; overflow: hidden; }
+
+        .bar { height: 100%; background: linear-gradient(90deg, #2563eb, #22d3ee); border-radius: 7px; }
+
+        .bar-val { width: 110px; text-align: right; color: #475569; flex-shrink: 0; }
+
+        .hint-box {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.7;
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.4);
+            border: 1px solid rgba(255,255,255,0.7);
+        }
+
+        .card-err { color: #dc2626; font-size: 13px; }
+
+        .empty { text-align: center; padding: 30px; color: #64748b; }
+
+        .footer { text-align: center; padding: 18px; color: #94a3b8; font-size: 12px; }
+
+        @media (max-width: 640px) {
+            body { padding: 0; }
+            .container { border-radius: 0; border: none; }
+            .content { padding: 18px; }
+            .bar-val { width: 84px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="切换深色 / 浅色主题">🌙</button>
+
+    <div class="container">
+        <div class="header">
+            <h1>📊 签到历史仪表盘</h1>
+            <p>各账号的签到记录与额度奖励一览（数据实时从站点拉取）</p>
+        </div>
+
+        <div class="content">
+            <div class="toolbar">
+                <input type="month" id="month-input">
+                <button class="btn primary" onclick="loadAll()">🔄 刷新数据</button>
+                <a class="btn" href="config_generator.html" style="text-decoration:none;display:inline-flex;align-items:center;">🛠️ 返回配置页</a>
+            </div>
+
+            <div id="cards">
+                <div class="empty">点击「刷新数据」开始加载</div>
+            </div>
+
+            <div class="hint-box">
+                💡 本页面从浏览器本地存储读取账号配置，并通过 <strong>serve.py 本地代理</strong>访问各站点接口
+                （请确保已运行 <strong>python serve.py</strong> 并从 127.0.0.1:8765 打开本页）。
+                支持 access_token 认证账号；额度按 new-api 标准（500,000 = $1）换算。
+            </div>
+        </div>
+
+        <div class="footer">NewAPI 自动签到 · 仪表盘</div>
+    </div>
+
+    <script>
+        // 主题
+        (function () {
+            var t = localStorage.getItem('newapi_theme');
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            var b = document.getElementById('themeToggle');
+            if (b) b.textContent = t === 'dark' ? '☀️' : '🌙';
+        })();
+        function toggleTheme() {
+            var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            else document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('newapi_theme', t);
+            document.getElementById('themeToggle').textContent = t === 'dark' ? '☀️' : '🌙';
+        }
+
+        // 走本地代理请求（无 CORS）
+        async function proxyGet(url, headers) {
+            const resp = await fetch('/cloud-proxy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url, method: 'GET', headers: headers || {} })
+            });
+            const j = await resp.json();
+            return { status: j.status, text: j.text };
+        }
+
+        function fmtQuota(q) {
+            if (!q && q !== 0) return '-';
+            const usd = q / 500000;
+            return q.toLocaleString() + ' tokens（$' + usd.toFixed(2) + '）';
+        }
+
+        function getAccounts() {
+            let sites = [];
+            try { sites = JSON.parse(localStorage.getItem('newapi_checkin_accounts') || '[]'); } catch (e) {}
+            const out = [];
+            (sites || []).forEach(site => {
+                (site.accounts || []).forEach(acc => {
+                    const base = acc.url || site.url;
+                    if (!base) return;
+                    if (!acc.accessToken && !acc.session) return;
+                    out.push({
+                        url: base,
+                        accessToken: acc.accessToken || '',
+                        session: acc.session || '',
+                        userId: acc.userId || '',
+                        name: acc.name || acc.url
+                    });
+                });
+            });
+            return out;
+        }
+
+        async function loadAccount(acc, month) {
+            const headers = {};
+            if (acc.accessToken) headers['Authorization'] = acc.accessToken;
+            if (acc.userId) headers['New-Api-User'] = String(acc.userId);
+
+            const out = { name: acc.name, url: acc.url, error: null, self: null, stats: null };
+
+            // 用户信息
+            try {
+                const r1 = await proxyGet(acc.url + '/api/user/self', headers);
+                try {
+                    const j1 = JSON.parse(r1.text);
+                    if (j1.success) out.self = j1.data;
+                } catch (e) {}
+            } catch (e) {}
+
+            // 签到统计
+            try {
+                const r2 = await proxyGet(acc.url + '/api/user/checkin?month=' + month, headers);
+                const j2 = JSON.parse(r2.text);
+                if (j2.success && j2.data && j2.data.stats) out.stats = j2.data.stats;
+                else out.error = j2.message || ('HTTP ' + r2.status);
+            } catch (e) {
+                out.error = '请求失败: ' + e.message + '（可能是 CF 拦截）';
+            }
+            return out;
+        }
+
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+        }
+
+        function renderCard(acc, info) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            let html = `<h3><span>👤 ${esc(acc.name)}</span><span class="url">${esc(acc.url)}</span></h3>`;
+
+            if (info.error && !info.stats) {
+                html += `<div class="card-err">❌ ${esc(info.error)}</div>`;
+                card.innerHTML = html;
+                return card;
+            }
+
+            if (info.self) {
+                const q = info.self.quota;
+                html += `<div class="stat-chips">
+                    <span class="stat-chip">👤 ${esc(info.self.username || '')}</span>
+                    ${q != null ? `<span class="stat-chip">💰 当前余额: ${fmtQuota(q)}</span>` : ''}
+                </div>`;
+            }
+
+            if (info.stats) {
+                const s = info.stats;
+                html += `<div class="stat-chips">
+                    <span class="stat-chip ${s.checked_in_today ? 'ok' : ''}">${s.checked_in_today ? '✅ 今日已签' : '⭕ 今日未签'}</span>
+                    <span class="stat-chip">📅 本月 ${s.checkin_count} 次</span>
+                    <span class="stat-chip">🏆 累计 ${s.total_checkins} 天</span>
+                    <span class="stat-chip">💰 累计 ${fmtQuota(s.total_quota)}</span>
+                </div>`;
+
+                const recs = (s.records || []).slice().sort((a, b) => a.checkin_date < b.checkin_date ? -1 : 1);
+                if (recs.length) {
+                    const max = Math.max(...recs.map(r => r.quota_awarded), 1);
+                    html += '<div style="margin-top: 6px;">';
+                    recs.forEach(r => {
+                        const pct = Math.max(6, Math.round(r.quota_awarded / max * 100));
+                        html += `<div class="rec-row">
+                            <span class="bar-label">${esc(r.checkin_date)}</span>
+                            <div class="bar-track"><div class="bar" style="width:${pct}%"></div></div>
+                            <span class="bar-val">${fmtQuota(r.quota_awarded)}</span>
+                        </div>`;
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<div class="empty">本月暂无签到记录</div>';
+                }
+            }
+
+            if (info.error) html += `<div class="card-err">⚠️ ${esc(info.error)}</div>`;
+            card.innerHTML = html;
+            return card;
+        }
+
+        async function loadAll() {
+            const month = document.getElementById('month-input').value;
+            const cards = document.getElementById('cards');
+            const accounts = getAccounts();
+
+            if (!accounts.length) {
+                cards.innerHTML = `<div class="empty">📋 浏览器本地存储中没有账号配置。<br>
+                    请先在 <a href="config_generator.html">配置生成器</a> 中填写并「保存到本地」。</div>`;
+                return;
+            }
+
+            cards.innerHTML = '<div class="empty">⏳ 正在加载（每账号需访问站点接口，请稍候）...</div>';
+
+            const container = document.createDocumentFragment();
+            for (const acc of accounts) {
+                const info = await loadAccount(acc, month);
+                container.appendChild(renderCard(acc, info));
+            }
+            cards.innerHTML = '';
+            cards.appendChild(container);
+        }
+
+        // 初始化
+        document.getElementById('month-input').value = new Date().toISOString().slice(0, 7);
+        document.getElementById('month-input').addEventListener('change', loadAll);
+        if (localStorage.getItem('newapi_theme') !== 'dark') loadAll();
+    </script>
+</body>
+</html>
