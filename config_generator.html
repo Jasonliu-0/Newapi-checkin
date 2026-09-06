@@ -3885,6 +3885,26 @@
 
         html[data-theme="dark"] .btn-clear { color: #f87171; border-color: rgba(248, 113, 113, 0.4); }
 
+
+        /* 浅色主题下内联白字的对比度修复 */
+
+        .cloud-section > p {
+            color: #475569;
+        }
+
+        html[data-theme="dark"] .cloud-section > p {
+            color: #94a3b8;
+        }
+
+        html[data-theme="dark"] #cloud-auth-type {
+            background: rgba(4, 10, 24, 0.45);
+            color: #f1f5f9;
+        }
+
+        html[data-theme="dark"] #cloud-saved-config {
+            color: #6ee7b7;
+        }
+
         /* 深色模式对比度修复 */
 
         html[data-theme="dark"] .footer {
@@ -3972,7 +3992,7 @@
                     </div>
                     <div class="form-group">
                         <label>认证方式</label>
-                        <select id="cloud-auth-type" style="width:100%;padding:12px 16px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);outline:none;">
+                        <select id="cloud-auth-type" style="width:100%;padding:12px 16px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;background:#f8fafc;color:#1e293b;outline:none;">
                             <option value="basic" style="background:#0f172a;">Basic Auth（用户名+密码）</option>
                             <option value="token" style="background:#0f172a;">Token（访问令牌）</option>
                         </select>
@@ -4026,7 +4046,7 @@
 
                 <div id="cloud-status" class="cloud-status"></div>
 
-                <div id="cloud-saved-config" style="display: none; margin-top: 12px; padding: 12px 16px; background: rgba(16,185,129,0.08); border: 1px solid rgba(52,211,153,0.15); border-radius: 10px; font-size: 13px; color: rgba(255,255,255,0.7);">
+                <div id="cloud-saved-config" style="display: none; margin-top: 12px; padding: 12px 16px; background: rgba(16,185,129,0.08); border: 1px solid rgba(52,211,153,0.15); border-radius: 10px; font-size: 13px; color: #047857;">
                     <span style="color: #059669;">☁️ 已保存的云端配置：</span>
                     <span id="cloud-saved-url" style="color: #94a3b8;"></span>
                     <span style="color: #cbd5e1;">|</span>
@@ -4143,7 +4163,7 @@
 
             <div id="bookmark-section" class="cloud-section">
                 <h3>🧷 站点一键抓取书签</h3>
-                <p style="color: rgba(255,255,255,0.65); font-size: 13px; margin-bottom: 12px; line-height: 1.7;">
+                <p style="font-size: 13px; margin-bottom: 12px; line-height: 1.7;">
                     把下面的书签拖到浏览器收藏夹。以后在任何已登录的 NewAPI 站点页面上点一下这个书签，
                     就会自动抓取 <strong>站点地址、用户ID、系统访问令牌</strong>（现场生成新令牌，旧令牌自动作废），
                     并自动打开本页面回填配置——全程无需 F12。
