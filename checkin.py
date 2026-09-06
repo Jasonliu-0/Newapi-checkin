@@ -350,6 +350,10 @@ class NewAPICheckin:
                     if already_checked_in:
                         result['success'] = True
                         result['message'] = message
+                    elif 'pow' in message.lower():
+                        # 站点开启 PoW 工作量证明，本地直接解算后重签
+                        print(f'[PoW] 站点要求工作量证明: {message}')
+                        return self._checkin_with_pow(result)
                     elif 'turnstile' in message.lower():
                         # 站点开启 Turnstile 人机验证，走真实浏览器解验证后重签
                         print(f'[Turnstile] 站点要求人机验证: {message}')
@@ -366,6 +370,59 @@ class NewAPICheckin:
         except Exception as e:
             result['message'] = f'未知错误: {e}'
 
+        return result
+
+    @staticmethod
+    def _solve_pow(prefix: str, difficulty: int) -> str:
+        """计算 PoW nonce：SHA-256(prefix + nonce) 的前 difficulty 个比特全为 0"""
+        import hashlib
+        counter = 0
+        full, rem = divmod(difficulty, 8)
+        mask = ((0xFF << (8 - rem)) & 0xFF) if rem else 0
+        prefix_bytes = prefix.encode()
+        while True:
+            nonce = f'{counter:08x}'
+            digest = hashlib.sha256(prefix_bytes + nonce.encode()).digest()
+            if all(b == 0 for b in digest[:full]):
+                if rem == 0 or full >= len(digest) or (digest[full] & mask) == 0:
+                    return nonce
+            counter += 1
+            if counter > 0xffffffff:
+                raise RuntimeError('PoW 超过最大尝试次数')
+
+    def _checkin_with_pow(self, result: dict) -> dict:
+        """PoW 工作量证明签到（new-api 新版防滥用机制，pow_mode=replace 时替代 Turnstile）"""
+        try:
+            r = self.session.get(f'{self.base_url}/api/user/pow/challenge',
+                                 params={'action': 'checkin'}, timeout=30)
+            data = r.json()
+            if not data.get('success'):
+                result['message'] = f"获取 PoW 挑战失败: {data.get('message', '未知错误')}"
+                return result
+            ch = data['data']
+            difficulty = int(ch['difficulty'])
+            print(f'[PoW] 解算挑战 (difficulty={difficulty})...')
+            nonce = self._solve_pow(ch['prefix'], difficulty)
+            print(f'[PoW] 解算完成: nonce={nonce}')
+
+            resp = self.session.post(
+                f'{self.base_url}/api/user/checkin',
+                params={'pow_challenge': ch['challenge_id'], 'pow_nonce': nonce},
+                timeout=30)
+            data = resp.json()
+            message = data.get('message', '签到失败')
+            already_keywords = ['已签到', '已经签到', 'already', '重复签到']
+            if data.get('success') or any(k in message for k in already_keywords):
+                result['success'] = True
+                result['message'] = f'{message} (PoW)'
+                cd = data.get('data', {})
+                if isinstance(cd, dict):
+                    result['checkin_date'] = cd.get('checkin_date')
+                    result['quota_awarded'] = cd.get('quota_awarded')
+            else:
+                result['message'] = f'PoW 签到失败: {message}'
+        except Exception as e:
+            result['message'] = f'PoW 签到异常: {e}'
         return result
 
     def _turnstile_checkin(self, result: dict) -> dict:

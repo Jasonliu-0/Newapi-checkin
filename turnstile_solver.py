@@ -282,41 +282,88 @@ def solve_and_checkin(base_url: str, sitekey: str = None, auth_headers: dict = N
                     print('[Turnstile] CF 验证未通过')
                 return None
 
-            # sitekey 未提供时从页面内获取（requests 可能被 CF 拦）
-            if not sitekey:
-                sitekey = page.evaluate('''async () => {
-                    try {
-                        const r = await fetch('/api/status');
-                        const j = await r.json();
-                        return (j.data && j.data.turnstile_site_key) || null;
-                    } catch (e) { return null; }
-                }''')
-                if verbose:
-                    print(f'[Turnstile] sitekey: {sitekey}')
-            if not sitekey:
-                if verbose:
-                    print('[Turnstile] 无法获取 sitekey')
-                return None
-
-            token = _solve_in_page(page, sitekey, max_wait=max_wait, verbose=verbose)
-            if not token:
-                return None
-
-            result = page.evaluate('''async (args) => {
-                try {
-                    const resp = await fetch('/api/user/checkin?turnstile=' + encodeURIComponent(args.token), {
-                        method: 'POST',
-                        headers: Object.assign({'Content-Type': 'application/json'}, args.headers),
-                        body: JSON.stringify({ turnstile: args.token }),
-                        credentials: 'include',
-                    });
-                    const text = await resp.text();
-                    try { return JSON.parse(text); }
-                    catch (e) { return { success: false, message: '响应非JSON: ' + text.substring(0, 120) }; }
-                } catch (e) {
-                    return { success: false, message: e.message };
+            # 页面内 JS：PoW 挑战获取 + 求解（SHA-256 前导零比特，与官方 Worker 算法一致）
+            SOLVE_POW_JS = '''async (headers) => {
+                const r = await fetch('/api/user/pow/challenge?action=checkin', {
+                    credentials: 'include', headers: headers
+                });
+                const j = await r.json();
+                if (!j.success) throw new Error(j.message || '获取 PoW 挑战失败');
+                const {challenge_id, prefix, difficulty} = j.data;
+                let n = 0;
+                for (;;) {
+                    const nonce = n.toString(16).padStart(8, '0');
+                    const h = new Uint8Array(await crypto.subtle.digest('SHA-256',
+                        new TextEncoder().encode(prefix + nonce)));
+                    const full = Math.floor(difficulty / 8), rem = difficulty % 8;
+                    let ok = true;
+                    for (let i = 0; i < full; i++) if (h[i] !== 0) { ok = false; break; }
+                    if (ok && rem > 0 && (h[full] & (255 << (8 - rem))) !== 0) ok = false;
+                    if (ok) return {challenge_id, nonce};
+                    n++;
+                    if (n > 0xffffffff) throw new Error('超过最大尝试次数');
                 }
-            }''', {'token': token, 'headers': auth_headers})
+            }'''
+
+            POST_JS = '''async (args) => {
+                const headers = Object.assign({'Content-Type': 'application/json'}, args.headers);
+                const resp = await fetch('/api/user/checkin' + (args.query || ''), {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(args.body || {}),
+                    credentials: 'include',
+                });
+                const text = await resp.text();
+                try { return JSON.parse(text); }
+                catch (e) { return { success: false, message: '响应非JSON: ' + text.substring(0, 120) }; }
+            }'''
+
+            # 第一跳：不带验证参数直接签到
+            result = page.evaluate(POST_JS, {'headers': auth_headers})
+
+            # 按服务端要求补验证（最多两轮：PoW / Turnstile 任意组合）
+            ts_token = None
+            pow_params = None
+            for _ in range(2):
+                if not isinstance(result, dict) or result.get('success'):
+                    break
+                msg = str(result.get('message', '')).lower()
+                if 'pow' in msg and pow_params is None:
+                    if verbose:
+                        print('[Turnstile] 服务端要求 PoW 工作量证明，页面内解算...')
+                    pow_params = page.evaluate(SOLVE_POW_JS, auth_headers)
+                    if verbose:
+                        print(f"[Turnstile] PoW 解算完成: nonce={pow_params['nonce']}")
+                elif 'turnstile' in msg and ts_token is None:
+                    if not sitekey:
+                        sitekey = page.evaluate('''async () => {
+                            try {
+                                const r = await fetch('/api/status');
+                                const j = await r.json();
+                                return (j.data && j.data.turnstile_site_key) || null;
+                            } catch (e) { return null; }
+                        }''')
+                        if verbose:
+                            print(f'[Turnstile] sitekey: {sitekey}')
+                    if not sitekey:
+                        break
+                    ts_token = _solve_in_page(page, sitekey, max_wait=max_wait, verbose=verbose)
+                    if not ts_token:
+                        break
+                else:
+                    break
+                # 组装查询参数并重试
+                query = ''
+                body = {}
+                from urllib.parse import quote
+                if ts_token:
+                    query += ('&' if query else '?') + 'turnstile=' + quote(ts_token)
+                    body['turnstile'] = ts_token
+                if pow_params:
+                    query += ('&' if query else '?') + ('pow_challenge=' + quote(pow_params['challenge_id']) +
+                             '&pow_nonce=' + quote(pow_params['nonce']))
+                result = page.evaluate(POST_JS, {'headers': auth_headers, 'query': query, 'body': body})
+
             browser.close()
             return result
     except Exception as e:
