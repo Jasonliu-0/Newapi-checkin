@@ -1528,7 +1528,7 @@
                 radial-gradient(800px circle at 12% 82%, rgba(59, 130, 246, 0.48) 0%, transparent 60%),
                 radial-gradient(650px circle at 48% 42%, rgba(125, 211, 252, 0.4) 0%, transparent 65%),
                 radial-gradient(500px circle at 68% 30%, rgba(45, 212, 191, 0.3) 0%, transparent 62%);
-            animation: bgFloat 24s ease-in-out infinite;
+            /* 静态壁纸：动画会导致 backdrop-filter 每帧重算，严重掉帧 */
         }
 
         .container {
@@ -2951,7 +2951,7 @@
                 radial-gradient(800px circle at 12% 82%, rgba(59, 130, 246, 0.48) 0%, transparent 60%),
                 radial-gradient(650px circle at 48% 42%, rgba(125, 211, 252, 0.4) 0%, transparent 65%),
                 radial-gradient(500px circle at 68% 30%, rgba(45, 212, 191, 0.3) 0%, transparent 62%);
-            animation: bgFloat 24s ease-in-out infinite;
+            /* 静态壁纸：动画会导致 backdrop-filter 每帧重算，严重掉帧 */
         }
 
         .container {
