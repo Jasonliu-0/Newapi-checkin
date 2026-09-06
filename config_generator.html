@@ -5010,6 +5010,29 @@
             URL.revokeObjectURL(url);
         }
 
+        // 云端请求通道: 本地运行 serve.py 时通过同源代理转发到 WebDAV（彻底绕开 CORS）
+        const CLOUD_VIA_PROXY = (location.hostname === '127.0.0.1' || location.hostname === 'localhost');
+
+        async function cloudFetch(url, options = {}) {
+            if (!CLOUD_VIA_PROXY) return fetch(url, options);
+            const resp = await fetch('/cloud-proxy', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    url: url,
+                    method: options.method || 'GET',
+                    headers: options.headers || {},
+                    body: options.body || ''
+                })
+            });
+            const j = await resp.json();
+            return {
+                ok: j.status >= 200 && j.status < 300,
+                status: j.status,
+                text: async () => j.text
+            };
+        }
+
         function buildCloudUrl() {
             let baseUrl = document.getElementById('cloud-url').value.trim();
             const filename = document.getElementById('cloud-filename').value.trim() || 'newapi-config.json';
@@ -5173,7 +5196,7 @@
             showCloudStatus('info', '正在保存到云端...');
 
             try {
-                const resp = await fetch(url, {
+                const resp = await cloudFetch(url, {
                     method: 'PUT',
                     headers: headers,
                     body: JSON.stringify(configPayload, null, 2)
@@ -5216,7 +5239,7 @@
                     } else if (protocol === 'file:') {
                         tips = '\n\n💡 请检查：\n1. WebDAV 地址是否正确可达\n2. 网络连接是否正常\n3. HTTPS 证书是否有效';
                     } else {
-                        tips = '\n\n💡 解决方案（按推荐顺序）：\n1. 启用「CORS 代理」（最快捷）\n2. 下载本页面后用 Firefox 打开\n3. 群晖/NextCloud 在服务端配置 CORS 头\n4. 坚果云不支持自定义 CORS，请用方案 1 或 2';
+                        tips = '\n\n💡 解决方案（按推荐顺序）：\n1. 运行 python serve.py 并从 127.0.0.1:8765 打开本页（本地代理，无 CORS）\n2. 启用「CORS 代理」\n3. 下载本页面后用 Firefox 打开\n4. 群晖/NextCloud 在服务端配置 CORS 头（坚果云不支持，请用方案 1）';
                     }
                     showCloudStatus('error', '❌ 连接失败：可能是 CORS 跨域限制或地址不可达' + tips);
                 } else {
@@ -5241,7 +5264,7 @@
                 const getHeaders = { ...headers };
                 delete getHeaders['Content-Type'];
 
-                const resp = await fetch(url, {
+                const resp = await cloudFetch(url, {
                     method: 'GET',
                     headers: getHeaders
                 });
@@ -5280,7 +5303,7 @@
                     const protocol = window.location.protocol;
                     let tips = '';
                     if (protocol !== 'file:') {
-                        tips = '\n\n💡 解决方案：\n1. 下载本页面到本地打开（绕过 CORS）\n2. 启用「CORS 代理」\n3. 在服务端配置 CORS 允许头';
+                        tips = '\n\n💡 解决方案：\n1. 运行 python serve.py 并从 127.0.0.1:8765 打开本页（本地代理，无 CORS）\n2. 启用「CORS 代理」\n3. 下载本页面后用 Firefox 打开\n4. 在服务端配置 CORS 允许头';
                     } else {
                         tips = '\n\n💡 请检查 WebDAV 地址和网络连接';
                     }
@@ -5316,7 +5339,7 @@
                 const testHeaders = { ...headers };
                 delete testHeaders['Content-Type'];
 
-                const resp = await fetch(url, {
+                const resp = await cloudFetch(url, {
                     method: 'PROPFIND',
                     headers: {
                         ...testHeaders,
@@ -5338,7 +5361,7 @@
                     const protocol = window.location.protocol;
                     let tips = '';
                     if (protocol !== 'file:') {
-                        tips = '\n\n💡 解决方案：\n1. 下载本页面到本地打开（绕过 CORS）\n2. 启用「CORS 代理」\n3. 在服务端配置 CORS 允许头';
+                        tips = '\n\n💡 解决方案：\n1. 运行 python serve.py 并从 127.0.0.1:8765 打开本页（本地代理，无 CORS）\n2. 启用「CORS 代理」\n3. 下载本页面后用 Firefox 打开\n4. 在服务端配置 CORS 允许头';
                     } else {
                         tips = '\n\n💡 请检查地址和网络连接';
                     }
